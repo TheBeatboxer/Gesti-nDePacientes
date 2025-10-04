@@ -1,0 +1,197 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+// Define custom medical theme colors
+$medical-primary: (
+  50: #e3f2fd,
+  100: #bbdefb,
+  200: #90caf9,
+  300: #64b5f6,
+  400: #42a5f5,
+  500: #2196f3,
+  600: #1e88e5,
+  700: #1976d2,
+  800: #1565c0,
+  900: #0d47a1,
+  A100: #82b1ff,
+  A200: #448aff,
+  A400: #2979ff,
+  A700: #2962ff,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+$medical-accent: (
+  50: #e8f5e8,
+  100: #c8e6c9,
+  200: #a5d6a7,
+  300: #81c784,
+  400: #66bb6a,
+  500: #4caf50,
+  600: #43a047,
+  700: #388e3c,
+  800: #2e7d32,
+  900: #1b5e20,
+  A100: #b9f6ca,
+  A200: #69f0ae,
+  A400: #00e676,
+  A700: #00c853,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: rgba(black, 0.87),
+  )
+);
+
+html {
+  @include mat.theme((
+    color: (
+      primary: $medical-primary,
+      tertiary: $medical-accent,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: #f5f9ff; // Light blue background for medical feel
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+}
+
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Custom medical theme variables
+:root {
+  --medical-primary: #2196f3;
+  --medical-secondary: #4caf50;
+  --medical-accent: #ff9800;
+  --medical-background: #f5f9ff;
+  --medical-surface: #ffffff;
+  --medical-text: #212121;
+  --medical-text-secondary: #757575;
+}
+
+// Global styles for medical app
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mat-mdc-button {
+  border-radius: 8px;
+  text-transform: none;
+}
+
+.mat-mdc-form-field {
+  margin-bottom: 16px;
+}
+
+.mat-mdc-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mat-mdc-chip {
+  border-radius: 16px;
+}
+// Global button styles for medical app
+.mat-mdc-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-button:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-primary {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+}
+
+.mat-mdc-button.mat-primary:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-warn {
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+}
+
+.mat-mdc-button.mat-warn:hover {
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%) !important;
+}
+// Global button styles for medical app
+.mat-mdc-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-button:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-primary {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+}
+
+.mat-mdc-button.mat-primary:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-warn {
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+}
+
+.mat-mdc-button.mat-warn:hover {
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%) !important;
+}

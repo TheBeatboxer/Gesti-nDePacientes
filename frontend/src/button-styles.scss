@@ -1,0 +1,28 @@
+// Global button styles for medical app
+.mat-mdc-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-button:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-primary {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+}
+
+.mat-mdc-button.mat-primary:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%) !important;
+}
+
+.mat-mdc-button.mat-warn {
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+}
+
+.mat-mdc-button.mat-warn:hover {
+  background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%) !important;
+}
