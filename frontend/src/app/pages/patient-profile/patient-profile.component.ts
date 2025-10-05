@@ -44,7 +44,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       <h1>Mi Perfil de Paciente</h1>
 
       <div class="section profile-section">
-        <h2>MI PERFIL DE PACIENTE</h2>
+        <h2>INFORMACIÓN PERSONAL</h2>
         <mat-card class="profile-card">
         <mat-card-content>
           <form class="profile-form">
@@ -67,12 +67,12 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
 
             <mat-form-field appearance="outline">
               <mat-label>Teléfono</mat-label>
-              <input matInput [(ngModel)]="patient.contact.phone" name="phone">
+              <input matInput [(ngModel)]="patient.contact.phone" name="phone" readonly>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Dirección</mat-label>
-              <textarea matInput [(ngModel)]="patient.contact.address" name="address" rows="3"></textarea>
+              <textarea matInput [(ngModel)]="patient.contact.address" name="address" rows="3" readonly></textarea>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -90,16 +90,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
             </mat-form-field>
           </form>
         </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveProfile()">
-            <mat-icon>save</mat-icon>
-            Guardar Cambios
-          </button>
-          <button mat-button (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            Cerrar Sesión
-          </button>
-        </mat-card-actions>
+
         </mat-card>
       </div>
 
@@ -139,7 +130,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
           </form>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="primary" [disabled]="vitalForm.invalid" (click)="saveVital()">
+          <button mat-raised-button class="doctor-btn" [disabled]="vitalForm.invalid" (click)="saveVital()">
             <mat-icon>save</mat-icon>
             Guardar Registro
           </button>
@@ -410,6 +401,19 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       color: var(--medical-primary);
       margin-top: 40px;
     }
+    .doctor-btn {
+      background: linear-gradient(45deg, #1976d2, #42a5f5);
+      color: white;
+      border: none;
+    }
+    .doctor-btn:hover {
+      background: linear-gradient(45deg, #1565c0, #1976d2);
+    }
+    .doctor-btn:disabled {
+      background: linear-gradient(45deg, #ccc, #ddd);
+      color: #666;
+      cursor: not-allowed;
+    }
   `]
 })
 export class PatientProfileComponent implements OnInit {
@@ -423,6 +427,7 @@ export class PatientProfileComponent implements OnInit {
   };
 
   vitalForm: FormGroup;
+
   vitals: any[] = [];
   filters: any = { startDate: '', endDate: '' };
   activeFilter: string = '30days';
@@ -454,6 +459,14 @@ export class PatientProfileComponent implements OnInit {
           }
         }
       }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0
+        }
+      }
     }
   };
 
@@ -469,6 +482,14 @@ export class PatientProfileComponent implements OnInit {
             const timeLabel = this.tempTimeLabels[context.dataIndex];
             return `${value} at ${timeLabel}`;
           }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0
         }
       }
     }
@@ -488,6 +509,14 @@ export class PatientProfileComponent implements OnInit {
           }
         }
       }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0
+        }
+      }
     }
   };
 
@@ -505,11 +534,20 @@ export class PatientProfileComponent implements OnInit {
           }
         }
       }
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0
+        }
+      }
     }
   };
 
   displayedColumns: string[] = ['fecha', 'presion', 'temperatura', 'frecuencia', 'glucosa', 'estado', 'notas'];
   groupedVitals: any[] = [];
+
 
 
 
@@ -545,7 +583,11 @@ export class PatientProfileComponent implements OnInit {
     if (user && user.roles.includes('PATIENT')) {
       this.patientService.getMyPatient().subscribe({
         next: (patient) => {
-          this.patient = patient;
+          this.patient = {
+            ...this.patient,
+            ...patient,
+            contact: { ...this.patient.contact, ...patient.contact }
+          };
         },
         error: (err) => {
           this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 3000 });
@@ -554,17 +596,7 @@ export class PatientProfileComponent implements OnInit {
     }
   }
 
-  saveProfile() {
-    // Update contact info
-    this.patientService.updateMyPatient({ contact: this.patient.contact }).subscribe({
-      next: () => {
-        this.snackBar.open('Perfil guardado exitosamente', 'Cerrar', { duration: 3000 });
-      },
-      error: () => {
-        this.snackBar.open('Error al guardar perfil', 'Cerrar', { duration: 3000 });
-      }
-    });
-  }
+
 
   saveVital() {
     if (this.vitalForm.valid) {
@@ -647,7 +679,7 @@ export class PatientProfileComponent implements OnInit {
 
     this.pressureTimeLabels = pressureData.map(v => formatDateTime(new Date(v.recordedAt)));
     this.pressureChart = {
-      labels: pressureData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString() : formatDate(new Date(v.recordedAt))),
+      labels: pressureData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : formatDate(new Date(v.recordedAt))),
       datasets: [
         {
           data: pressureData.map(v => +v.value.systolic),
@@ -670,7 +702,7 @@ export class PatientProfileComponent implements OnInit {
 
     this.tempTimeLabels = tempData.map(v => formatDateTime(new Date(v.recordedAt)));
     this.tempChart = {
-      labels: tempData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString() : formatDate(new Date(v.recordedAt))),
+      labels: tempData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : formatDate(new Date(v.recordedAt))),
       datasets: [{
         data: tempData.map(v => +v.value),
         label: 'Temperatura (°C)',
@@ -683,7 +715,7 @@ export class PatientProfileComponent implements OnInit {
 
     this.heartRateTimeLabels = heartRateData.map(v => formatDateTime(new Date(v.recordedAt)));
     this.heartRateChart = {
-      labels: heartRateData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString() : formatDate(new Date(v.recordedAt))),
+      labels: heartRateData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : formatDate(new Date(v.recordedAt))),
       datasets: [{
         data: heartRateData.map(v => +v.value),
         label: 'Frecuencia Cardíaca (lpm)',
@@ -696,7 +728,7 @@ export class PatientProfileComponent implements OnInit {
 
     this.glucoseTimeLabels = glucoseData.map(v => formatDateTime(new Date(v.recordedAt)));
     this.glucoseChart = {
-      labels: glucoseData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString() : formatDate(new Date(v.recordedAt))),
+      labels: glucoseData.map(v => isToday ? new Date(v.recordedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : formatDate(new Date(v.recordedAt))),
       datasets: [{
         data: glucoseData.map(v => +v.value),
         label: 'Glucosa (mg/dL)',
