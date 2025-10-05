@@ -24,8 +24,8 @@ export class VitalService {
     let params = new URLSearchParams();
     params.append('patientId', patientId);
     if (filters?.type) params.append('type', filters.type);
-    if (filters?.startDate) params.append('startDate', filters.startDate);
-    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.startDate) params.append('startDate', filters.startDate.toISOString());
+    if (filters?.endDate) params.append('endDate', filters.endDate.toISOString());
     return this.http.get<any[]>(`${environment.apiUrl}/vitals?${params.toString()}`);
   }
 }

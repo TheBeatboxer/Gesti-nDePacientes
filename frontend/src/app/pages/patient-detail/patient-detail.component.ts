@@ -49,7 +49,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
             <mat-list-item *ngFor="let entry of patient?.history">
               <mat-icon mat-list-icon>note</mat-icon>
               <h4 mat-line>{{ entry.note }}</h4>
-              <p mat-line>{{ entry.date | date:'medium' }} - {{ entry.nurse?.name || 'Enfermero' }}</p>
+              <p mat-line>{{ entry.date | date:'dd/MM/yyyy HH:mm' }} - {{ entry.nurse?.name || 'Enfermero' }}</p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -81,14 +81,59 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
           <mat-card-title>Historial de Signos Vitales</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let vital of vitals">
-              <mat-icon mat-list-icon>monitor_heart</mat-icon>
-              <h4 mat-line>{{ vital.type }}: {{ vital.value }}</h4>
-              <p mat-line>{{ vital.timestamp | date:'medium' }}</p>
-            </mat-list-item>
-          </mat-list>
+          <div class="vitals-grid" *ngIf="vitals.length > 0; else noVitals">
+            <mat-card *ngFor="let vital of vitals" class="vital-card" [ngClass]="getVitalClass(vital.type)">
+              <mat-card-content>
+                <div class="vital-header">
+                  <mat-icon class="vital-icon">{{ getVitalIcon(vital.type) }}</mat-icon>
+                  <span class="vital-type">{{ getVitalLabel(vital.type) }}</span>
+                </div>
+                <div class="vital-value">
+                  {{ getVitalDisplayValue(vital) }}
+                </div>
+                <div class="vital-timestamp">
+                  {{ vital.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <ng-template #noVitals>
+            <p class="no-vitals">No hay registros de signos vitales.</p>
+          </ng-template>
         </mat-card-content>
+      </mat-card>
+
+      <mat-card class="add-vital-card">
+        <mat-card-header>
+          <mat-card-title>Agregar Signos Vitales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form #vitalForm="ngForm">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Presión arterial (sistólica)</mat-label>
+              <input matInput name="systolic" type="number" [(ngModel)]="newVital.systolic" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Presión arterial (diastólica)</mat-label>
+              <input matInput name="diastolic" type="number" [(ngModel)]="newVital.diastolic" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Temperatura (°C)</mat-label>
+              <input matInput name="temperature" type="number" step="0.1" [(ngModel)]="newVital.temperature" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Frecuencia cardíaca (lpm)</mat-label>
+              <input matInput name="heartRate" type="number" [(ngModel)]="newVital.heartRate" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Glucosa (mg/dL)</mat-label>
+              <input matInput name="glucose" type="number" [(ngModel)]="newVital.glucose" required>
+            </mat-form-field>
+          </form>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveVital()" [disabled]="!vitalForm.form.valid">Guardar Signos Vitales</button>
+        </mat-card-actions>
       </mat-card>
     </div>
   `,
@@ -104,8 +149,81 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
     .vitals-card {
       margin-top: 20px;
     }
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .vital-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-left: 4px solid #ccc;
+    }
+    .vital-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .vital-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .vital-icon {
+      margin-right: 8px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    .vital-type {
+      font-weight: 500;
+      font-size: 14px;
+      color: #666;
+    }
+    .vital-value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .vital-timestamp {
+      font-size: 12px;
+      color: #999;
+    }
+    .vital-pressure {
+      border-left-color: #1976d2;
+    }
+    .vital-pressure .vital-icon {
+      color: #1976d2;
+    }
+    .vital-temp {
+      border-left-color: #ff9800;
+    }
+    .vital-temp .vital-icon {
+      color: #ff9800;
+    }
+    .vital-heart-rate {
+      border-left-color: #4caf50;
+    }
+    .vital-heart-rate .vital-icon {
+      color: #4caf50;
+    }
+    .vital-glucose {
+      border-left-color: #9c27b0;
+    }
+    .vital-glucose .vital-icon {
+      color: #9c27b0;
+    }
+    .no-vitals {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+    }
     button {
       margin-bottom: 20px;
+    }
+    .add-vital-card {
+      margin-top: 20px;
+    }
+    .full-width {
+      width: 100%;
     }
   `]
 })
@@ -115,6 +233,13 @@ export class PatientDetailComponent implements OnInit {
   nurses: any[] = [];
   newNote = '';
   selectedNurse = '';
+  newVital = {
+    systolic: null,
+    diastolic: null,
+    temperature: null,
+    heartRate: null,
+    glucose: null
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -155,6 +280,44 @@ export class PatientDetailComponent implements OnInit {
     return this.patient.assignedNurses.map((n: any) => n.name).join(', ');
   }
 
+  getVitalClass(type: string): string {
+    switch (type) {
+      case 'pressure': return 'vital-pressure';
+      case 'temp': return 'vital-temp';
+      case 'heartRate': return 'vital-heart-rate';
+      case 'glucose': return 'vital-glucose';
+      default: return '';
+    }
+  }
+
+  getVitalIcon(type: string): string {
+    switch (type) {
+      case 'pressure': return 'favorite';
+      case 'temp': return 'thermostat';
+      case 'heartRate': return 'monitor_heart';
+      case 'glucose': return 'bloodtype';
+      default: return 'monitor_heart';
+    }
+  }
+
+  getVitalLabel(type: string): string {
+    switch (type) {
+      case 'pressure': return 'Presión Arterial';
+      case 'temp': return 'Temperatura';
+      case 'heartRate': return 'Frecuencia Cardíaca';
+      case 'glucose': return 'Glucosa';
+      default: return type;
+    }
+  }
+
+  getVitalDisplayValue(vital: any): string {
+    if (vital.type === 'pressure') {
+      return `${vital.value.systolic}/${vital.value.diastolic} mmHg`;
+    } else {
+      return `${vital.value} ${vital.unit || ''}`;
+    }
+  }
+
   addNote() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && this.newNote && this.selectedNurse) {
@@ -166,5 +329,41 @@ export class PatientDetailComponent implements OnInit {
         this.patientService.getPatient(id).subscribe(data => this.patient = data);
       });
     }
+  }
+
+  saveVital() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.snackBar.open('Paciente no encontrado', 'Cerrar', { duration: 3000 });
+      return;
+    }
+    const vitals = [
+      { type: 'pressure', value: { systolic: this.newVital.systolic, diastolic: this.newVital.diastolic }, unit: 'mmHg' },
+      { type: 'temp', value: this.newVital.temperature, unit: '°C' },
+      { type: 'heartRate', value: this.newVital.heartRate, unit: 'lpm' },
+      { type: 'glucose', value: this.newVital.glucose, unit: 'mg/dL' }
+    ];
+
+    let savedCount = 0;
+    let hasError = false;
+
+    vitals.forEach(vital => {
+      this.vitalService.addVital(vital).subscribe({
+        next: () => {
+          savedCount++;
+          if (savedCount === vitals.length && !hasError) {
+            this.snackBar.open('Signos vitales guardados exitosamente', 'Cerrar', { duration: 3000 });
+            this.vitalService.getVitals(id).subscribe(data => this.vitals = data);
+            this.newVital = { systolic: null, diastolic: null, temperature: null, heartRate: null, glucose: null };
+          }
+        },
+        error: () => {
+          if (!hasError) {
+            hasError = true;
+            this.snackBar.open('Error al guardar los registros vitales', 'Cerrar', { duration: 3000 });
+          }
+        }
+      });
+    });
   }
 }

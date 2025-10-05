@@ -176,3 +176,16 @@ exports.getPatientByUserId = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.updateMyPatient = async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ userId: req.user._id });
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+    // Update allowed fields
+    if (req.body.contact) patient.contact = req.body.contact;
+    await patient.save();
+    res.json({ ok: true, patient });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

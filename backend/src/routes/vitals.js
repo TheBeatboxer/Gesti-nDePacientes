@@ -27,6 +27,92 @@ function checkRanges(type, value) {
   return null;
 }
 
+router.post('/self', async (req, res) => {
+  try {
+    console.log('POST /api/vitals/self - req.body:', req.body);
+    console.log('User ID:', req.user ? req.user._id : 'req.user undefined');
+    const { type, value, unit, notes } = req.body;
+
+    // Validate required fields
+    if (!type || value === undefined || value === null) {
+      return res.status(400).json({ error: 'Missing required fields: type and value' });
+    }
+
+    // Validate type and value types
+    const validTypes = ['pressure', 'temp', 'heartRate', 'glucose'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ error: 'Invalid vital type' });
+    }
+
+    if (type === 'pressure') {
+      if (typeof value !== 'object' || value.systolic === undefined || value.diastolic === undefined) {
+        return res.status(400).json({ error: 'Invalid value for pressure type. Expected object with systolic and diastolic' });
+      }
+    } else {
+      if (typeof value !== 'number') {
+        return res.status(400).json({ error: `Invalid value type for ${type}. Expected number` });
+      }
+    }
+
+    console.log('Validation passed for vital:', { type, value, unit, notes });
+    console.log('About to find patient for userId:', req.user._id);
+    const patient = await Patient.findOne({ userId: req.user._id });
+    console.log('Patient findOne result:', patient ? 'found' : 'not found');
+    if (!patient) {
+      console.log('Patient not found for userId:', req.user._id);
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+    console.log('Patient found:', patient._id);
+
+    console.log('About to create vital');
+    const vital = new Vital({
+      patientId: patient._id,
+      type,
+      value,
+      unit,
+      recordedBy: req.user._id,
+      notes
+    });
+    console.log('Vital object created:', vital);
+    console.log('About to save vital');
+    await vital.save();
+    console.log('Vital saved successfully');
+    // check ranges
+    const alertInfo = checkRanges(type, value);
+    console.log('Alert info:', alertInfo);
+    let alert;
+    if (alertInfo) {
+      console.log('About to create alert');
+      alert = new Alert({
+        patientId: patient._id,
+        vitalId: vital._id,
+        level: alertInfo.level,
+        message: alertInfo.msg,
+        status: 'open'
+      });
+      console.log('Alert object created:', alert);
+      console.log('About to save alert');
+      await alert.save();
+      console.log('Alert saved');
+      // emit socket notification
+      const io = req.app.get('io');
+      console.log('About to emit socket, io available:', !!io);
+      if (io) {
+        io.emit('newAlert', { alert });
+        console.log('Socket emitted');
+      } else {
+        console.warn('Socket.io not available');
+      }
+    }
+    console.log('About to send response');
+    res.json({ ok: true, vital, alert });
+  } catch (err) {
+    console.error('Error in POST /api/vitals/self:', err);
+    console.error('Stack trace:', err.stack);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/:patientId', async (req, res) => {
   try {
     const { type, value, unit, notes } = req.body;
@@ -60,39 +146,17 @@ router.post('/:patientId', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post('/self', authMiddleware, async (req, res) => {
-  try {
-    const { type, value, unit, notes } = req.body;
-    const patient = await Patient.findOne({ userId: req.user._id });
-    if (!patient) return res.status(404).json({ error: 'Patient not found' });
 
-    const vital = new Vital({
-      patientId: patient._id,
-      type,
-      value,
-      unit,
-      recordedBy: req.user._id,
-      notes
-    });
-    await vital.save();
-    // check ranges
-    const alertInfo = checkRanges(type, value);
-    let alert;
-    if (alertInfo) {
-      alert = new Alert({
-        patientId: patient._id,
-        vitalId: vital._id,
-        level: alertInfo.level,
-        message: alertInfo.msg,
-        status: 'open'
-      });
-      await alert.save();
-      // emit socket notification
-      const io = req.app.get('io');
-      io.emit('newAlert', { alert });
+router.get('/test-patient', async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ userId: req.user._id });
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found' });
     }
-    res.json({ ok: true, vital, alert });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+    res.json({ ok: true, patientId: patient._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get('/', async (req, res) => {

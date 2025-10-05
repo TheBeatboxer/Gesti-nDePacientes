@@ -1,8 +1,7 @@
-# TODO: Integrate Delete Patient Option in Admin Dashboard
-
-## Tasks
-- [x] Add delete button to assigned patients cards in admin dashboard
-- [x] Add delete button to available patients cards in admin dashboard
-- [x] Implement deletePatient method in AdminDashboardComponent
-- [x] Update template to include delete buttons with proper styling
-- [x] Test the delete functionality and reload patients after deletion
+- [ ] Analyze patient view (patient-detail.component.ts) and identify areas for improvement in data interaction
+- [ ] Add a form in patient-detail.component.ts to allow nurses to digitize and save vital signs for patients
+- [ ] Improve the UI in patient-profile.component.ts for better data digitization (clearer labels, validation, better layout)
+- [x] Fix the error "Error al guardar los registros vitales" by improving error handling and validation in backend and frontend - Added detailed logging to POST /api/vitals/self
+- [x] Update backend routes and controllers if needed for better error messages - Added updateMyPatient route for patients to update their own profile
+- [x] Test saving vital signs and check backend logs for the exact error causing 500 - Added more detailed logging
+- [ ] Test the changes

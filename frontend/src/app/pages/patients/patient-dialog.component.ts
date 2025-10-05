@@ -302,7 +302,7 @@ export class PatientDialogComponent implements OnInit {
         },
         email: formValue.email,
         password: this.data.password,
-        createCredentials: formValue.createCredentials,
+        createCredentials: this.data.createCredentials || formValue.createCredentials,
         clinicalSummary: formValue.clinicalSummary,
         dischargeType: formValue.dischargeType,
         assignedNurses: formValue.assignedNurses

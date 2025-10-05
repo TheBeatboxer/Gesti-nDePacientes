@@ -54,4 +54,8 @@ export class PatientService {
   getMyPatient(): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/patients/me`);
   }
+
+  updateMyPatient(data: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/patients/me`, data);
+  }
 }

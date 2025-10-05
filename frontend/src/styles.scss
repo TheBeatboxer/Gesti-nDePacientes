@@ -139,6 +139,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mat-mdc-chip {
   border-radius: 16px;
 }
+
+// Styles for vitals table header
+.vitals-table th.mat-header-cell {
+  background: linear-gradient(135deg, var(--medical-primary), #42a5f5) !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 16px 12px;
+  text-align: left;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 // Global button styles for medical app
 .mat-mdc-button {
   background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;

@@ -29,6 +29,14 @@ async function main() {
     console.log('nurse created -> nurse@local.com /', pwd);
   }
 
+  // patient user
+  let patientUser = await User.findOne({ email: 'patient@local.com' });
+  if (!patientUser) {
+    patientUser = new User({ name: 'Paciente Demo', email: 'patient@local.com', passwordHash: hash, roles: ['PATIENT'] });
+    await patientUser.save();
+    console.log('patient user created -> patient@local.com /', pwd);
+  }
+
   // patient
   let patient = await Patient.findOne({ name: 'Paciente Demo' });
   if (!patient) {
@@ -36,11 +44,20 @@ async function main() {
       name: 'Paciente Demo',
       dni: '00000000',
       contact: { phone: '999999999', address: 'Calle Demo 123' },
-      clinicalSummary: 'Alta postoperatoria'
+      clinicalSummary: 'Alta postoperatoria',
+      dischargeType: 'post-operatorio',
+      userId: patientUser._id
     });
     patient.assignedNurses = [nurse._id];
     await patient.save();
     console.log('patient created');
+  } else {
+    // Update userId if missing
+    if (!patient.userId) {
+      patient.userId = patientUser._id;
+      await patient.save();
+      console.log('patient userId updated');
+    }
   }
 
   process.exit(0);

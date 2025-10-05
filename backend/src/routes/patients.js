@@ -10,6 +10,7 @@ router.get('/me', authMiddleware, patientController.getPatientByUserId);
 router.get('/:id', patientController.getPatientById);
 router.post('/', nurseMiddleware, patientController.createPatient);
 router.put('/:id', adminMiddleware, patientController.updatePatient);
+router.put('/me', authMiddleware, patientController.updateMyPatient);
 router.delete('/:id', adminMiddleware, patientController.deletePatient);
 
 router.post('/:id/history', nurseMiddleware, patientController.addHistoryNote);
