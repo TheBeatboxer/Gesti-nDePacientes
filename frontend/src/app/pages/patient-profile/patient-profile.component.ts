@@ -40,14 +40,12 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
     BaseChartDirective
   ],
   template: `
-    <div class="profile-container">
+    <div class="page-wrapper">
       <h1>Mi Perfil de Paciente</h1>
 
-      <mat-card class="profile-card">
-        <mat-card-header>
-          <mat-card-title>Información Personal</mat-card-title>
-          <mat-icon mat-card-avatar>person</mat-icon>
-        </mat-card-header>
+      <div class="section profile-section">
+        <h2>MI PERFIL DE PACIENTE</h2>
+        <mat-card class="profile-card">
         <mat-card-content>
           <form class="profile-form">
             <mat-form-field appearance="outline">
@@ -102,9 +100,11 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
             Cerrar Sesión
           </button>
         </mat-card-actions>
-      </mat-card>
+        </mat-card>
+      </div>
 
-      <h2>REGISTRO DE SIGNOS VITALES</h2>
+      <div class="section vitals-section">
+        <h2>REGISTRO DE SIGNOS VITALES</h2>
       <mat-card class="vital-card">
         <mat-card-content>
           <form [formGroup]="vitalForm" class="vital-form">
@@ -144,9 +144,11 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
             Guardar Registro
           </button>
         </mat-card-actions>
-      </mat-card>
+        </mat-card>
+      </div>
 
-      <h2>HISTORIAL PERSONAL DE EVOLUCIÓN</h2>
+      <div class="section history-section">
+        <h2>HISTORIAL PERSONAL DE EVOLUCIÓN</h2>
       <mat-card class="history-card">
         <mat-card-content>
           <div class="filters">
@@ -241,23 +243,61 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
-        </mat-card-content>
-      </mat-card>
-    </div>
+          </mat-card-content>
+        </mat-card>
+        </div>
+      </div>
   `,
   styles: [`
-    .profile-container {
+    .page-wrapper {
       padding: 20px;
-      max-width: 800px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
     }
-    .profile-container h1 {
+    .section {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      .page-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 20px;
+        align-items: stretch;
+        max-width: 1400px;
+      }
+      h1 {
+        grid-column: 1 / span 2;
+        grid-row: 1;
+      }
+      .profile-section {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      .vitals-section {
+        grid-column: 2;
+        grid-row: 2;
+      }
+      .history-section {
+        grid-column: 1 / span 2;
+        grid-row: 3;
+      }
+      .section {
+        margin-bottom: 0;
+      }
+    }
+    h1 {
       color: var(--medical-primary);
       text-align: center;
       margin-bottom: 30px;
     }
-    .profile-card {
+    .profile-card, .vital-card, .history-card {
       padding: 20px;
+      flex: 1;
+      box-sizing: border-box;
     }
     .profile-form {
       display: grid;
@@ -281,10 +321,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
         grid-template-columns: 1fr;
       }
     }
-    .vital-card, .history-card {
-      margin-top: 20px;
-      padding: 20px;
-    }
+
     .vital-form {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -325,7 +362,8 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
-      margin-bottom: 20px;
+      margin: 0 auto 20px;
+      max-width: 800px;
     }
     .chart-item {
       padding: 16px;

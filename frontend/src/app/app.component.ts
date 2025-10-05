@@ -91,7 +91,7 @@ import { filter } from 'rxjs/operators';
     }
     .user-name {
       font-size: 1.1rem;
-      color: white;
+      color: black;
       margin-right: 8px;
     }
     .action-box {

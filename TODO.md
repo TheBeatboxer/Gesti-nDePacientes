@@ -1,7 +1,6 @@
-- [ ] Analyze patient view (patient-detail.component.ts) and identify areas for improvement in data interaction
-- [ ] Add a form in patient-detail.component.ts to allow nurses to digitize and save vital signs for patients
-- [ ] Improve the UI in patient-profile.component.ts for better data digitization (clearer labels, validation, better layout)
-- [x] Fix the error "Error al guardar los registros vitales" by improving error handling and validation in backend and frontend - Added detailed logging to POST /api/vitals/self
-- [x] Update backend routes and controllers if needed for better error messages - Added updateMyPatient route for patients to update their own profile
-- [x] Test saving vital signs and check backend logs for the exact error causing 500 - Added more detailed logging
-- [ ] Test the changes
+- [x] Reorder template sections: patient, vitals, add-vital, history, add-note (patient-detail)
+- [x] Wrap sections in divs with classes: profile-section, vitals-section, history-section (patient-detail)
+- [x] Update styles: remove max-width, add responsive CSS with grid for wide screens (patient-detail)
+- [x] Wrap sections in patient-profile: profile-section, vitals-section, history-section
+- [x] Update styles for patient-profile: responsive grid
+- [x] Apply grid to content-wrapper for both components

@@ -21,133 +21,159 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
   standalone: true,
   imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule],
   template: `
-    <div class="patient-detail-container">
-      <button mat-raised-button color="primary" routerLink="/patients">
-        <mat-icon>arrow_back</mat-icon>
-        Volver a Pacientes
-      </button>
+    <div class="page-wrapper">
+      <div class="patient-detail-container">
+        <button mat-raised-button color="primary" routerLink="/patients">
+          <mat-icon>arrow_back</mat-icon>
+          Volver a Pacientes
+        </button>
 
-      <mat-card *ngIf="patient" class="patient-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>person</mat-icon>
-          <mat-card-title>{{ patient.name }}</mat-card-title>
-          <mat-card-subtitle>{{ calculateAge(patient.birthDate) }} años</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p><strong>Resumen Clínico:</strong> {{ patient.clinicalSummary }}</p>
-          <p><strong>Tipo de Alta:</strong> {{ patient.dischargeType }}</p>
-          <p><strong>Enfermeros Asignados:</strong> {{ getAssignedNurses() }}</p>
-        </mat-card-content>
-      </mat-card>
+        <div class="section profile-section">
+          <mat-card *ngIf="patient" class="patient-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>person</mat-icon>
+            <mat-card-title>{{ patient.name }}</mat-card-title>
+            <mat-card-subtitle>{{ calculateAge(patient.birthDate) }} años</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <p><strong>Resumen Clínico:</strong> {{ patient.clinicalSummary }}</p>
+            <p><strong>Tipo de Alta:</strong> {{ patient.dischargeType }}</p>
+            <p><strong>Enfermeros Asignados:</strong> {{ getAssignedNurses() }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
 
-      <mat-card class="history-card">
-        <mat-card-header>
-          <mat-card-title>Historial de Evolución</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let entry of patient?.history">
-              <mat-icon mat-list-icon>note</mat-icon>
-              <h4 mat-line>{{ entry.note }}</h4>
-              <p mat-line>{{ entry.date | date:'dd/MM/yyyy HH:mm' }} - {{ entry.nurse?.name || 'Enfermero' }}</p>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
+      <div class="section vitals-section">
+        <mat-card class="vitals-card">
+          <mat-card-header>
+            <mat-card-title>Historial de Signos Vitales</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="vitals-grid" *ngIf="vitals.length > 0; else noVitals">
+              <mat-card *ngFor="let vital of vitals" class="vital-card" [ngClass]="getVitalClass(vital.type)">
+                <mat-card-content>
+                  <div class="vital-header">
+                    <mat-icon class="vital-icon">{{ getVitalIcon(vital.type) }}</mat-icon>
+                    <span class="vital-type">{{ getVitalLabel(vital.type) }}</span>
+                  </div>
+                  <div class="vital-value">
+                    {{ getVitalDisplayValue(vital) }}
+                  </div>
+                  <div class="vital-timestamp">
+                    {{ vital.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            <ng-template #noVitals>
+              <p class="no-vitals">No hay registros de signos vitales.</p>
+            </ng-template>
+          </mat-card-content>
+        </mat-card>
 
-      <mat-card class="add-note-card">
-        <mat-card-header>
-          <mat-card-title>Agregar Nota de Evolución</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Nota</mat-label>
-            <textarea matInput [(ngModel)]="newNote" rows="3"></textarea>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Enfermero</mat-label>
-            <mat-select [(ngModel)]="selectedNurse">
-              <mat-option *ngFor="let nurse of nurses" [value]="nurse._id">{{ nurse.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="addNote()" [disabled]="!newNote || !selectedNurse">Agregar Nota</button>
-        </mat-card-actions>
-      </mat-card>
+        <mat-card class="add-vital-card">
+          <mat-card-header>
+            <mat-card-title>Agregar Signos Vitales</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form #vitalForm="ngForm">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Presión arterial (sistólica)</mat-label>
+                <input matInput name="systolic" type="number" [(ngModel)]="newVital.systolic" required>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Presión arterial (diastólica)</mat-label>
+                <input matInput name="diastolic" type="number" [(ngModel)]="newVital.diastolic" required>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Temperatura (°C)</mat-label>
+                <input matInput name="temperature" type="number" step="0.1" [(ngModel)]="newVital.temperature" required>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Frecuencia cardíaca (lpm)</mat-label>
+                <input matInput name="heartRate" type="number" [(ngModel)]="newVital.heartRate" required>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Glucosa (mg/dL)</mat-label>
+                <input matInput name="glucose" type="number" [(ngModel)]="newVital.glucose" required>
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="saveVital()" [disabled]="!vitalForm.form.valid">Guardar Signos Vitales</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
 
-      <mat-card class="vitals-card">
-        <mat-card-header>
-          <mat-card-title>Historial de Signos Vitales</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="vitals-grid" *ngIf="vitals.length > 0; else noVitals">
-            <mat-card *ngFor="let vital of vitals" class="vital-card" [ngClass]="getVitalClass(vital.type)">
-              <mat-card-content>
-                <div class="vital-header">
-                  <mat-icon class="vital-icon">{{ getVitalIcon(vital.type) }}</mat-icon>
-                  <span class="vital-type">{{ getVitalLabel(vital.type) }}</span>
-                </div>
-                <div class="vital-value">
-                  {{ getVitalDisplayValue(vital) }}
-                </div>
-                <div class="vital-timestamp">
-                  {{ vital.timestamp | date:'dd/MM/yyyy HH:mm' }}
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <ng-template #noVitals>
-            <p class="no-vitals">No hay registros de signos vitales.</p>
-          </ng-template>
-        </mat-card-content>
-      </mat-card>
+      <div class="section history-section">
+        <mat-card class="history-card">
+          <mat-card-header>
+            <mat-card-title>Historial de Evolución</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-list>
+              <mat-list-item *ngFor="let entry of patient?.history">
+                <mat-icon mat-list-icon>note</mat-icon>
+                <h4 mat-line>{{ entry.note }}</h4>
+                <p mat-line>{{ entry.date | date:'dd/MM/yyyy HH:mm' }} - {{ entry.nurse?.name || 'Enfermero' }}</p>
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
 
-      <mat-card class="add-vital-card">
-        <mat-card-header>
-          <mat-card-title>Agregar Signos Vitales</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form #vitalForm="ngForm">
+        <mat-card class="add-note-card">
+          <mat-card-header>
+            <mat-card-title>Agregar Nota de Evolución</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Presión arterial (sistólica)</mat-label>
-              <input matInput name="systolic" type="number" [(ngModel)]="newVital.systolic" required>
+              <mat-label>Nota</mat-label>
+              <textarea matInput [(ngModel)]="newNote" rows="3"></textarea>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Presión arterial (diastólica)</mat-label>
-              <input matInput name="diastolic" type="number" [(ngModel)]="newVital.diastolic" required>
+              <mat-label>Enfermero</mat-label>
+              <mat-select [(ngModel)]="selectedNurse">
+                <mat-option *ngFor="let nurse of nurses" [value]="nurse._id">{{ nurse.name }}</mat-option>
+              </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Temperatura (°C)</mat-label>
-              <input matInput name="temperature" type="number" step="0.1" [(ngModel)]="newVital.temperature" required>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Frecuencia cardíaca (lpm)</mat-label>
-              <input matInput name="heartRate" type="number" [(ngModel)]="newVital.heartRate" required>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Glucosa (mg/dL)</mat-label>
-              <input matInput name="glucose" type="number" [(ngModel)]="newVital.glucose" required>
-            </mat-form-field>
-          </form>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveVital()" [disabled]="!vitalForm.form.valid">Guardar Signos Vitales</button>
-        </mat-card-actions>
-      </mat-card>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="addNote()" [disabled]="!newNote || !selectedNurse">Agregar Nota</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
     </div>
   `,
   styles: [`
-    .patient-detail-container {
+    .page-wrapper {
       padding: 20px;
-      max-width: 800px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
     }
-    .patient-card {
+    .section {
       margin-bottom: 20px;
     }
-    .vitals-card {
-      margin-top: 20px;
+    @media (min-width: 768px) {
+      .page-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 20px;
+        max-width: 1200px;
+      }
+      .profile-section {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .vitals-section {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      .history-section {
+        grid-column: 1 / span 2;
+        grid-row: 2;
+      }
     }
     .vitals-grid {
       display: grid;
@@ -219,9 +245,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
     button {
       margin-bottom: 20px;
     }
-    .add-vital-card {
-      margin-top: 20px;
-    }
+
     .full-width {
       width: 100%;
     }
