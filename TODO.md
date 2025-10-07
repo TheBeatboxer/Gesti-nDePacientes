@@ -1,6 +1,5 @@
-- [x] Reorder template sections: patient, vitals, add-vital, history, add-note (patient-detail)
-- [x] Wrap sections in divs with classes: profile-section, vitals-section, history-section (patient-detail)
-- [x] Update styles: remove max-width, add responsive CSS with grid for wide screens (patient-detail)
-- [x] Wrap sections in patient-profile: profile-section, vitals-section, history-section
-- [x] Update styles for patient-profile: responsive grid
-- [x] Apply grid to content-wrapper for both components
+# TODO: Make Login Responsive for Mobile
+
+- [x] Update login.component.ts styles with media queries for mobile (<600px)
+- [x] Update admin-login.component.ts styles with media queries for mobile (<600px)
+- [x] Test the login pages on mobile view by running the frontend (changes applied, responsiveness improved)

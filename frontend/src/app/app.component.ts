@@ -126,7 +126,7 @@ export class AppComponent implements OnInit {
   }
 
   updateLoginStatus() {
-    this.isLogin = this.router.url === '/admin-login';
+    this.isLogin = this.router.url === '/admin-login' || this.router.url === '/login';
   }
 
   toggleSidebar() {

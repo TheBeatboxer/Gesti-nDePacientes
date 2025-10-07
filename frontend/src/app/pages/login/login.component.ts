@@ -56,18 +56,29 @@ import { CommonModule } from '@angular/common';
               Entrar
             </button>
           </form>
+          <div class="admin-access">
+            <button mat-button (click)="goToAdminLogin()">
+              <mat-icon>admin_panel_settings</mat-icon>
+              Acceso Administrador
+            </button>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
   `,
   styles: [`
     .login-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
       background: linear-gradient(135deg, var(--medical-primary) 0%, var(--medical-secondary) 100%);
       padding: 20px;
+      overflow: hidden;
     }
     .login-card {
       width: 100%;
@@ -151,6 +162,10 @@ import { CommonModule } from '@angular/common';
     mat-card-subtitle {
       color: var(--medical-text-secondary);
     }
+    .admin-access {
+      text-align: center;
+      margin-top: 20px;
+    }
   `],
   standalone: true,
   imports: [
@@ -209,5 +224,9 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  goToAdminLogin() {
+    this.router.navigate(['/admin-login']);
   }
 }
