@@ -23,9 +23,8 @@ import { filter } from 'rxjs/operators';
           </div>
           <div class="actions-section">
             <ng-container *ngIf="auth.isLogged(); else notLogged">
-              <button mat-button (click)="goHome()">
+              <button mat-icon-button class="home-button" (click)="goHome()">
                 <mat-icon>home</mat-icon>
-                Inicio
               </button>
               <button mat-icon-button (click)="goNotifications()">
                 <mat-icon>notifications</mat-icon>
@@ -108,6 +107,46 @@ import { filter } from 'rxjs/operators';
     }
     .content-wrapper {
       padding-top: 0;
+    }
+    .home-button {
+      background: none !important;
+      color: inherit !important;
+    }
+    @media (max-width: 768px) {
+      .app-title {
+        display: none;
+      }
+      .logo-icon {
+        font-size: 24px;
+        height: 24px;
+        width: 24px;
+      }
+      .menu-icon {
+        font-size: 28px;
+        height: 28px;
+        width: 28px;
+      }
+      .actions-section {
+        gap: 4px;
+      }
+      .user-name {
+        font-size: 0.9rem;
+      }
+      .action-box button {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+      }
+      .actions-section button {
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .actions-section {
+        justify-content: space-around;
+      }
+      .logo-section {
+        gap: 8px;
+      }
     }
   `]
 })
