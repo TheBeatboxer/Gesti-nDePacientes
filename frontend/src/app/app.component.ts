@@ -62,16 +62,17 @@ import { filter } from 'rxjs/operators';
       justify-content: space-between;
       align-items: center;
       width: 100%;
+      padding: 0;
     }
     .logo-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
     .logo-icon {
-      font-size: 32px;
-      height: 32px;
-      width: 32px;
+      font-size: 24px;
+      height: 24px;
+      width: 24px;
     }
     .app-title {
       font-size: 1.5rem;
@@ -79,13 +80,13 @@ import { filter } from 'rxjs/operators';
     }
     .menu-icon {
       cursor: pointer;
-      font-size: 24px;
-      height: 24px;
-      width: 24px;
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
     }
     .actions-section {
       display: flex;
-      gap: 8px;
+      justify-content: space-between;
       align-items: center;
     }
     .user-name {
@@ -104,6 +105,7 @@ import { filter } from 'rxjs/operators';
       position: static;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       width: 100%;
+      padding: 0;
     }
     .content-wrapper {
       padding-top: 0;
@@ -126,27 +128,30 @@ import { filter } from 'rxjs/operators';
         height: 28px;
         width: 28px;
       }
-      .actions-section {
-        gap: 4px;
-      }
       .user-name {
         font-size: 0.9rem;
+        margin-right: 2px;
       }
       .action-box button {
         font-size: 0.8rem;
-        padding: 4px 8px;
+        padding: 1px 2px;
       }
-      .actions-section button {
+      .header-content button {
         font-size: 0.8rem;
+        padding: 0;
       }
     }
     @media (max-width: 480px) {
       .actions-section {
-        justify-content: space-around;
+        justify-content: flex-end;
+        gap: 0px;
       }
       .logo-section {
-        gap: 8px;
+        gap: 1px;
       }
+    .mat-toolbar-row {
+      padding: 0 0px 0 7px;
+    }
     }
   `]
 })
