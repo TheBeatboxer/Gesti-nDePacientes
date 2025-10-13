@@ -15,6 +15,8 @@ const chatRoutes = require('./routes/chat');
 const educationRoutes = require('./routes/education');
 const authMiddleware = require('./middleware/auth');
 
+const Message = require('./models/Message');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -52,15 +54,85 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Socket handling (simple)
-io.on('connection', (socket) => {
-  console.log('socket connected', socket.id);
-  socket.on('join', (userId) => {
-    socket.join(userId);
-    console.log(`socket ${socket.id} joined ${userId}`);
+// Socket handling with authentication
+const jwt = require('jsonwebtoken');
+
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('Authentication error: No token provided'));
+  }
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error('JWT verification error:', err);
+      return next(new Error('Authentication error: Invalid token'));
+    }
+    if (!decoded || !decoded.id) {
+      console.error('Invalid token payload:', decoded);
+      return next(new Error('Authentication error: Invalid token payload'));
+    }
+    socket.user = decoded;
+    console.log('Socket authenticated for user:', socket.user.id);
+    next();
   });
-  socket.on('sendMessage', (payload) => {
-    // payload: { toUserId, message }
-    io.to(payload.toUserId).emit('newMessage', payload);
+});
+
+io.on('connection', (socket) => {
+  console.log(`Socket connected: ${socket.id}, User: ${socket.user?.id || 'unknown'}`);
+
+  socket.on('joinChat', (otherUserId) => {
+    if (!socket.user || !socket.user.id) {
+      console.error('Unauthorized socket attempt to join chat');
+      socket.emit('error', { message: 'Authentication required' });
+      return;
+    }
+    const roomName = [socket.user.id, otherUserId].sort().join('_');
+    socket.join(roomName);
+    // Also join user's own room for personal messages
+    socket.join(socket.user.id);
+    console.log(`User ${socket.user.id} joined chat room: ${roomName} and personal room: ${socket.user.id}`);
+  });
+
+  socket.on('sendMessage', async (data) => {
+    if (!socket.user || !socket.user.id) {
+      console.error('Unauthorized socket attempt to send message');
+      socket.emit('error', { message: 'Authentication required' });
+      return;
+    }
+    console.log('Received sendMessage event:', data);
+    const { recipientId, message } = data;
+    const roomName = [socket.user.id, recipientId].sort().join('_');
+
+    try {
+      // Save message to database
+      const newMessage = new Message({
+        from: socket.user.id,
+        to: recipientId,
+        text: message,
+        conversationId: roomName
+      });
+      await newMessage.save();
+      console.log('Message saved:', newMessage);
+
+      // Emit the message to the specific room (conversation room)
+      io.to(roomName).emit('newMessage', {
+        sender: socket.user.id,
+        message: message,
+        timestamp: newMessage.createdAt
+      });
+      console.log('Message emitted to room:', roomName, 'with data:', {
+        sender: socket.user.id,
+        message: message,
+        timestamp: newMessage.createdAt
+      });
+    } catch (error) {
+      console.error('Error saving message:', error);
+      // Optionally, emit an error event back to the sender
+      socket.emit('messageError', { message: 'Failed to send message.' });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`Socket disconnected: ${socket.id}`);
   });
 });

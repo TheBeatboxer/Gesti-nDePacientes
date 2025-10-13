@@ -35,7 +35,7 @@ exports.createPatient = async (req, res) => {
       contact,
       clinicalSummary,
       dischargeType,
-      assignedNurses: req.user.roles.includes('NURSE') ? [req.user._id] : [],
+      assignedNurses: req.user.roles.includes('ADMIN') ? req.body.assignedNurses : (req.user.roles.includes('NURSE') ? [req.user._id] : []),
       userId,
       history
     });

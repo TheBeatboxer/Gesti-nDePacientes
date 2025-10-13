@@ -19,7 +19,7 @@ export const routes: Routes = [
   { path: 'admin-login', component: AdminLoginComponent, canActivate: [LoginGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard], data: { expectedRole: 'ADMIN' } },
   { path: 'nurse-dashboard', component: NurseDashboardComponent, canActivate: [AuthGuard] },
-  { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard], data: { expectedRole: 'PATIENT' } },
+  { path: 'patient-profile', loadComponent: () => import('./pages/patient-profile/patient-profile.component').then(m => m.PatientProfileComponent), canActivate: [AuthGuard], data: { expectedRole: 'PATIENT' } },
   { path: 'patients', component: PatientsComponent, canActivate: [AuthGuard] },
   { path: 'nurses', component: NursesComponent, canActivate: [AuthGuard], data: { expectedRole: 'ADMIN' } },
   { path: 'reports', component: ReportsComponent, canActivate: [AuthGuard] },

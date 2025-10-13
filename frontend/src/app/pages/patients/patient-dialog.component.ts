@@ -265,6 +265,19 @@ export class PatientDialogComponent implements OnInit {
     if (this.isAdmin) {
       this.loadNurses();
     }
+
+    // Debug form status
+    this.patientForm.statusChanges.subscribe(status => {
+      if (status === 'INVALID') {
+        console.log('Form is INVALID. Checking controls...');
+        Object.keys(this.patientForm.controls).forEach(key => {
+          const control = this.patientForm.get(key);
+          if (control && control.invalid) {
+            console.log(` -> Control '${key}' is invalid. Errors:`, control.errors);
+          }
+        });
+      }
+    });
   }
 
   loadNurses() {

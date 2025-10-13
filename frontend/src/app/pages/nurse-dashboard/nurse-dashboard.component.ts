@@ -322,7 +322,7 @@ export class NurseDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadUnreadMessages() {
-    this.chatService.getUnreadCount().subscribe(data => this.unreadMessages = data.count);
+    this.chatService.getUnreadCount().subscribe((data: { count: number }) => this.unreadMessages = data.count);
   }
 
   loadTodaysAppointments() {

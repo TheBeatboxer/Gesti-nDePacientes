@@ -15,11 +15,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { ChatComponent } from '../../shared/chat/chat.component';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule],
+  imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule, ChatComponent],
   template: `
     <div class="page-wrapper">
       <div class="patient-detail-container">
@@ -140,6 +142,17 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
           <mat-card-actions>
             <button mat-raised-button color="primary" (click)="addNote()" [disabled]="!newNote || !selectedNurse">Agregar Nota</button>
           </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <div class="section chat-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Chat con {{ patient?.name }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <app-chat [recipientId]="patient?._id"></app-chat>
+          </mat-card-content>
         </mat-card>
       </div>
     </div>
@@ -271,7 +284,8 @@ export class PatientDetailComponent implements OnInit {
     private vitalService: VitalService,
     private nurseService: NurseService,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private chatService: ChatService
   ) {}
 
   ngOnInit() {
@@ -281,6 +295,12 @@ export class PatientDetailComponent implements OnInit {
       this.vitalService.getVitals(id).subscribe(data => this.vitals = data);
     }
     this.loadNurses();
+    // Connect to chat when component initializes
+    this.connectToChat();
+  }
+
+  connectToChat() {
+    this.chatService.connect();
   }
 
   loadNurses() {

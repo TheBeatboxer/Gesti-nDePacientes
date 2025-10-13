@@ -19,18 +19,16 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-exports.getConversation = async (req, res) => {
+exports.getChatHistory = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const current = req.user._id;
-    const msgs = await Message.find({
-      $or: [
-        { from: current, to: userId },
-        { from: userId, to: current }
-      ]
-    }).sort({ createdAt: 1 });
+    const { user1Id, user2Id } = req.params;
+    const conversationId = [user1Id, user2Id].sort().join('_');
+    
+    const messages = await Message.find({
+      conversationId: conversationId
+    }).sort({ createdAt: 'asc' });
 
-    res.json(msgs);
+    res.json(messages);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

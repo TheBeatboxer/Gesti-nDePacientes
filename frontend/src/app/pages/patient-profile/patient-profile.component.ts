@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -17,6 +18,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } from 'chart.js';
+import { ChatComponent } from '../../shared/chat/chat.component';
 
 @Component({
   selector: 'app-patient-profile',
@@ -35,7 +37,8 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
     ReactiveFormsModule,
     MatSnackBarModule,
     MatDialogModule,
-    BaseChartDirective
+    BaseChartDirective,
+    ChatComponent
   ],
   template: `
     <div class="page-wrapper">
@@ -235,6 +238,49 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
           </mat-card-content>
         </mat-card>
         </div>
+
+        <div class="section medical-history-section">
+          <h2>HISTORIAL MÉDICO</h2>
+          <mat-card class="medical-history-card">
+            <mat-card-content>
+              <table mat-table [dataSource]="medicalHistory" class="medical-history-table">
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef> Fecha </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.date | date:'dd/MM/yyyy' }} </td>
+                </ng-container>
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef> Descripción </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="medicalHistoryColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: medicalHistoryColumns;"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="section chat-section">
+          <h2>CHAT CON ENFERMERAS</h2>
+          <mat-card class="chat-card">
+            <mat-card-content>
+              <div *ngIf="patient.assignedNurses && patient.assignedNurses.length > 0; else noNurses">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Chatear con...</mat-label>
+                  <mat-select [(ngModel)]="selectedNurseId" (selectionChange)="onNurseSelected()">
+                    <mat-option *ngFor="let nurse of patient.assignedNurses" [value]="nurse._id">
+                      {{ nurse.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <app-chat *ngIf="selectedNurseId" [recipientId]="selectedNurseId"></app-chat>
+              </div>
+              <ng-template #noNurses>
+                <p>No tienes enfermeras asignadas para chatear en este momento.</p>
+              </ng-template>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
       </div>
   `,
   styles: [`
@@ -253,7 +299,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       .page-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto auto;
         gap: 20px;
         align-items: stretch;
         max-width: 1400px;
@@ -274,6 +320,18 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
         grid-column: 1 / span 2;
         grid-row: 3;
       }
+      .medical-history-section {
+        grid-column: 1 / span 2;
+        grid-row: 4;
+      }
+      .chat-section {
+        grid-column: 1 / span 2;
+        grid-row: 5;
+      }
+      .vitals-section {
+        grid-column: 2;
+        grid-row: 2;
+      }
       .section {
         margin-bottom: 0;
       }
@@ -283,7 +341,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       text-align: center;
       margin-bottom: 30px;
     }
-    .profile-card, .vital-card, .history-card {
+    .profile-card, .vital-card, .history-card, .medical-history-card, .chat-card {
       padding: 20px;
       flex: 1;
       box-sizing: border-box;
@@ -364,7 +422,7 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       width: 100% !important;
       height: 250px !important;
     }
-    .vitals-table {
+    .vitals-table, .medical-history-table {
       width: 100%;
       border-radius: 8px;
       overflow: hidden;
@@ -372,19 +430,19 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       margin-top: 20px;
     }
 
-    .vitals-table td.mat-cell {
+    .vitals-table td.mat-cell, .medical-history-table td.mat-cell {
       padding: 16px 12px;
       border-bottom: 1px solid #e0e0e0;
       font-size: 14px;
     }
-    .vitals-table tr.mat-row {
+    .vitals-table tr.mat-row, .medical-history-table tr.mat-row {
       transition: background-color 0.2s ease;
     }
-    .vitals-table tr.mat-row:hover {
+    .vitals-table tr.mat-row:hover, .medical-history-table tr.mat-row:hover {
       background-color: #f8f9fa;
       cursor: pointer;
     }
-    .vitals-table tr.mat-row:nth-child(even) {
+    .vitals-table tr.mat-row:nth-child(even), .medical-history-table tr.mat-row:nth-child(even) {
       background-color: #fafafa;
     }
     .normal {
@@ -412,6 +470,9 @@ import { Chart, ChartConfiguration, ChartOptions, ChartData, registerables } fro
       color: #666;
       cursor: not-allowed;
     }
+    .full-width {
+      width: 100%;
+    }
   `]
 })
 export class PatientProfileComponent implements OnInit {
@@ -430,6 +491,7 @@ export class PatientProfileComponent implements OnInit {
   filters: any = { startDate: '', endDate: '' };
   activeFilter: string = '30days';
   savingVitals: boolean = false;
+  selectedNurseId?: string;
 
   pressureChart: ChartData<'line'> = { labels: [], datasets: [] };
   tempChart: ChartData<'line'> = { labels: [], datasets: [] };
@@ -546,6 +608,13 @@ export class PatientProfileComponent implements OnInit {
   displayedColumns: string[] = ['fecha', 'presion', 'temperatura', 'frecuencia', 'glucosa', 'estado', 'notas'];
   groupedVitals: any[] = [];
 
+  medicalHistoryColumns: string[] = ['date', 'description'];
+  medicalHistory: any[] = [
+    { date: '2023-01-15', description: 'Diagnóstico de hipertensión' },
+    { date: '2023-03-20', description: 'Cirugía de apendicitis' },
+    { date: '2023-06-10', description: 'Consulta por dolor de cabeza' }
+  ];
+
 
 
 
@@ -559,6 +628,7 @@ export class PatientProfileComponent implements OnInit {
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
+    console.log('--- PatientProfileComponent constructor fired ---');
     Chart.register(...registerables);
     this.vitalForm = this.fb.group({
       systolic: ['', Validators.required],
@@ -571,26 +641,39 @@ export class PatientProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.setFilter('30days'); // default
+    console.log('--- ngOnInit PatientProfileComponent ---');
     this.loadPatientProfile();
-    this.loadVitals();
   }
 
   loadPatientProfile() {
+    console.log('--- Calling loadPatientProfile ---');
     const user = this.authService.getUser();
     if (user && user.roles.includes('PATIENT')) {
       this.patientService.getMyPatient().subscribe({
         next: (patient) => {
-          this.patient = {
-            ...this.patient,
-            ...patient,
-            contact: { ...this.patient.contact, ...patient.contact }
-          };
+          console.log('Patient data loaded in profile:', patient);
+          this.patient = patient; // Direct assignment
+          // Agregar datos dummy para enfermeras asignadas si no existen
+          if (!this.patient.assignedNurses || this.patient.assignedNurses.length === 0) {
+            console.log('Adding dummy assignedNurses since none exist');
+            this.patient.assignedNurses = [
+              { _id: 'nurse1', name: 'Enfermera Ana' },
+              { _id: 'nurse2', name: 'Enfermera María' }
+            ];
+          }
+          console.log('Final patient.assignedNurses:', this.patient.assignedNurses);
+          console.log('Chat section should render now with assignedNurses length:', this.patient.assignedNurses.length);
+          // Now that we have the patient, set default filter and load vitals
+          this.setFilter('30days');
+          this.loadVitals();
         },
         error: (err) => {
+          console.error('Error loading patient profile:', err);
           this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 3000 });
         }
       });
+    } else {
+      console.error('User not authenticated as PATIENT');
     }
   }
 
@@ -757,10 +840,10 @@ export class PatientProfileComponent implements OnInit {
       this.filters.startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       this.filters.endDate = now;
     } else if (filter === 'custom') {
-      // do nothing
+      // do nothing, wait for apply button
       return;
     }
-    this.applyFilters();
+    this.loadVitals(); // Reload vitals when a quick filter is clicked
   }
 
   onChartClick(event: any, type: string) {
@@ -849,6 +932,11 @@ export class PatientProfileComponent implements OnInit {
       ...g,
       notas: Array.from(g.notas).join('; ') || '-'
     })).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+  }
+
+  onNurseSelected() {
+    console.log('Nurse selected:', this.selectedNurseId);
+    console.log('Chat component should now load with recipientId:', this.selectedNurseId);
   }
 
   logout() {
