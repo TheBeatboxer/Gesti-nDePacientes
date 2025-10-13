@@ -82,12 +82,21 @@ export class ChatComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   loadHistory(currentUserId: string): void {
+    console.log('Loading chat history for users:', currentUserId, 'and', this.recipientId);
     this.chatService.getChatHistory(currentUserId, this.recipientId).subscribe(history => {
+      console.log('Chat history loaded:', history);
       this.messages = history.map((msg: any) => ({
         sender: msg.from,
         message: msg.text,
         timestamp: msg.createdAt
       }));
+      // Scroll to bottom after loading history
+      setTimeout(() => {
+        const messagesArea = document.querySelector('.messages-area');
+        if (messagesArea) {
+          messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+      }, 0);
     });
   }
 
