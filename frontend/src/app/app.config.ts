@@ -2,6 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([jwtInterceptor])),
     provideAnimationsAsync(),
+    provideNativeDateAdapter(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
