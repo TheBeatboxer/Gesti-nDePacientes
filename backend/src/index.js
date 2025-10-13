@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
         message: message,
         timestamp: newMessage.createdAt
       });
-      console.log('Message emitted to room:', roomName, 'with data:', {
+      console.log('Message emitted to room:', roomName, 'and recipient personal room:', recipientId, 'with data:', {
         sender: socket.user.id,
         message: message,
         timestamp: newMessage.createdAt

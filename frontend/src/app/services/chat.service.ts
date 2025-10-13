@@ -18,7 +18,6 @@ export class ChatService {
   connect(): void {
     const token = this.authService.getToken();
     if (token) {
-      console.log('Connecting to chat server with token:', token.substring(0, 20) + '...');
       this.socket = io('http://localhost:5001', {
         auth: {
           token: token
@@ -27,18 +26,13 @@ export class ChatService {
       });
 
       this.socket.on('connect', () => {
-        console.log('Connected to chat server');
       });
 
       this.socket.on('disconnect', () => {
-        console.log('Disconnected from chat server');
       });
 
       this.socket.on('connect_error', (error) => {
-        console.error('Socket connect error:', error);
       });
-    } else {
-      console.error('No token available for socket connection');
     }
   }
 
@@ -49,11 +43,8 @@ export class ChatService {
   }
 
   sendMessage(recipientId: string, message: string): void {
-    console.log('Sending message to:', recipientId, 'message:', message);
     if (this.socket) {
       this.socket.emit('sendMessage', { recipientId, message });
-    } else {
-      console.error('Socket not connected');
     }
   }
 
@@ -61,15 +52,7 @@ export class ChatService {
     return new Observable(observer => {
       if (this.socket) {
         this.socket.on('newMessage', (data) => {
-          console.log('Received newMessage event:', data);
           observer.next(data);
-        });
-        // Handle connection errors
-        this.socket.on('connect_error', (error) => {
-          console.error('Socket connection error:', error);
-        });
-        this.socket.on('error', (error) => {
-          console.error('Socket error:', error);
         });
       }
     });

@@ -628,7 +628,6 @@ export class PatientProfileComponent implements OnInit {
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
-    console.log('--- PatientProfileComponent constructor fired ---');
     Chart.register(...registerables);
     this.vitalForm = this.fb.group({
       systolic: ['', Validators.required],
@@ -641,39 +640,30 @@ export class PatientProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('--- ngOnInit PatientProfileComponent ---');
     this.loadPatientProfile();
   }
 
   loadPatientProfile() {
-    console.log('--- Calling loadPatientProfile ---');
     const user = this.authService.getUser();
     if (user && user.roles.includes('PATIENT')) {
       this.patientService.getMyPatient().subscribe({
         next: (patient) => {
-          console.log('Patient data loaded in profile:', patient);
-          this.patient = patient; // Direct assignment
+          this.patient = patient;
           // Agregar datos dummy para enfermeras asignadas si no existen
           if (!this.patient.assignedNurses || this.patient.assignedNurses.length === 0) {
-            console.log('Adding dummy assignedNurses since none exist');
             this.patient.assignedNurses = [
               { _id: 'nurse1', name: 'Enfermera Ana' },
               { _id: 'nurse2', name: 'Enfermera María' }
             ];
           }
-          console.log('Final patient.assignedNurses:', this.patient.assignedNurses);
-          console.log('Chat section should render now with assignedNurses length:', this.patient.assignedNurses.length);
           // Now that we have the patient, set default filter and load vitals
           this.setFilter('30days');
           this.loadVitals();
         },
         error: (err) => {
-          console.error('Error loading patient profile:', err);
           this.snackBar.open('Error al cargar perfil', 'Cerrar', { duration: 3000 });
         }
       });
-    } else {
-      console.error('User not authenticated as PATIENT');
     }
   }
 
@@ -935,8 +925,6 @@ export class PatientProfileComponent implements OnInit {
   }
 
   onNurseSelected() {
-    console.log('Nurse selected:', this.selectedNurseId);
-    console.log('Chat component should now load with recipientId:', this.selectedNurseId);
   }
 
   logout() {

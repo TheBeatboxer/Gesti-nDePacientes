@@ -151,7 +151,7 @@ import { ChatService } from '../../services/chat.service';
             <mat-card-title>Chat con {{ patient?.name }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <app-chat [recipientId]="patient?._id"></app-chat>
+            <app-chat [recipientId]="patient?.userId"></app-chat>
           </mat-card-content>
         </mat-card>
       </div>
@@ -291,8 +291,12 @@ export class PatientDetailComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.patientService.getPatient(id).subscribe(data => this.patient = data);
-      this.vitalService.getVitals(id).subscribe(data => this.vitals = data);
+      this.patientService.getPatient(id).subscribe(data => {
+        this.patient = data;
+      });
+      this.vitalService.getVitals(id).subscribe(data => {
+        this.vitals = data;
+      });
     }
     this.loadNurses();
     // Connect to chat when component initializes
