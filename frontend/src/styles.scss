@@ -140,6 +140,20 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   border-radius: 16px;
 }
 
+// Datepicker popup background fix
+.mat-datepicker-popup {
+  background-color: white !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+// Select dropdown background fix
+.mat-mdc-select-panel {
+  background-color: white !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+
+
 // Styles for vitals table header
 .vitals-table th.mat-header-cell {
   background: linear-gradient(135deg, var(--medical-primary), #42a5f5) !important;

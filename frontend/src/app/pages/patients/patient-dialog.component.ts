@@ -265,19 +265,6 @@ export class PatientDialogComponent implements OnInit {
     if (this.isAdmin) {
       this.loadNurses();
     }
-
-    // Debug form status
-    this.patientForm.statusChanges.subscribe(status => {
-      if (status === 'INVALID') {
-        console.log('Form is INVALID. Checking controls...');
-        Object.keys(this.patientForm.controls).forEach(key => {
-          const control = this.patientForm.get(key);
-          if (control && control.invalid) {
-            console.log(` -> Control '${key}' is invalid. Errors:`, control.errors);
-          }
-        });
-      }
-    });
   }
 
   loadNurses() {
@@ -290,8 +277,11 @@ export class PatientDialogComponent implements OnInit {
       alert('Ingrese el nombre primero');
       return;
     }
-    const email = name.toLowerCase().replace(/\s+/g, '') + '@paciente.com';
-    const password = Math.random().toString(36).slice(-8);
+    // Generate unique email by adding timestamp to avoid duplicates
+    const baseEmail = name.toLowerCase().replace(/\s+/g, '');
+    const timestamp = Date.now().toString().slice(-4); // Last 4 digits of timestamp
+    const email = baseEmail + timestamp + '@paciente.com';
+    const password = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
     this.patientForm.patchValue({ email, createCredentials: true });
     this.data.password = password;
     this.dialog.open(CredentialsDialogComponent, {

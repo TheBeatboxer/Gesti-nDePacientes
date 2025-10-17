@@ -184,57 +184,7 @@ import { ChatComponent } from '../../shared/chat/chat.component';
               <canvas baseChart [data]="glucoseChart" [options]="glucoseChartOptions" type="line" (chartClick)="onChartClick($event, 'glucose')"></canvas>
             </div>
           </div>
-            <table mat-table [dataSource]="groupedVitals" class="vitals-table">
 
-              <!-- Fecha Column -->
-              <ng-container matColumnDef="fecha">
-                <th mat-header-cell *matHeaderCellDef> Fecha </th>
-                <td mat-cell *matCellDef="let element"> {{ element.fecha | date:'dd/MM/yyyy HH:mm' }} </td>
-              </ng-container>
-
-              <!-- Presión Arterial Column -->
-              <ng-container matColumnDef="presion">
-                <th mat-header-cell *matHeaderCellDef> Presión Arterial </th>
-                <td mat-cell *matCellDef="let element"> {{ element.presion || '-' }} </td>
-              </ng-container>
-
-              <!-- Temperatura Column -->
-              <ng-container matColumnDef="temperatura">
-                <th mat-header-cell *matHeaderCellDef> Temperatura </th>
-                <td mat-cell *matCellDef="let element"> {{ element.temperatura || '-' }} </td>
-              </ng-container>
-
-              <!-- Frecuencia Cardíaca Column -->
-              <ng-container matColumnDef="frecuencia">
-                <th mat-header-cell *matHeaderCellDef> Frecuencia Cardíaca </th>
-                <td mat-cell *matCellDef="let element"> {{ element.frecuencia || '-' }} </td>
-              </ng-container>
-
-              <!-- Glucosa Column -->
-              <ng-container matColumnDef="glucosa">
-                <th mat-header-cell *matHeaderCellDef> Glucosa </th>
-                <td mat-cell *matCellDef="let element"> {{ element.glucosa || '-' }} </td>
-              </ng-container>
-
-              <!-- Estado Column -->
-              <ng-container matColumnDef="estado">
-                <th mat-header-cell *matHeaderCellDef> Estado </th>
-                <td mat-cell *matCellDef="let element">
-                  <span [class]="element.estado === '✅' ? 'normal' : 'abnormal'">
-                    {{ element.estado }}
-                  </span>
-                </td>
-              </ng-container>
-
-              <!-- Notas Column -->
-              <ng-container matColumnDef="notas">
-                <th mat-header-cell *matHeaderCellDef> Notas </th>
-                <td mat-cell *matCellDef="let element"> {{ element.notas }} </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
           </mat-card-content>
         </mat-card>
         </div>
@@ -243,18 +193,74 @@ import { ChatComponent } from '../../shared/chat/chat.component';
           <h2>HISTORIAL MÉDICO</h2>
           <mat-card class="medical-history-card">
             <mat-card-content>
-              <table mat-table [dataSource]="medicalHistory" class="medical-history-table">
-                <ng-container matColumnDef="date">
+              <div class="filters">
+                <div class="quick-filters">
+                  <button mat-button [class.active]="activeFilter === 'today'" (click)="setFilter('today')">Hoy</button>
+                  <button mat-button [class.active]="activeFilter === '7days'" (click)="setFilter('7days')">7 días</button>
+                  <button mat-button [class.active]="activeFilter === '30days'" (click)="setFilter('30days')">30 días</button>
+                  <button mat-button [class.active]="activeFilter === 'custom'" (click)="setFilter('custom')">Personalizado</button>
+                </div>
+                <div *ngIf="activeFilter === 'custom'" class="custom-dates">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fecha inicio</mat-label>
+                    <input matInput [matDatepicker]="startPicker" [(ngModel)]="filters.startDate">
+                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fecha fin</mat-label>
+                    <input matInput [matDatepicker]="endPicker" [(ngModel)]="filters.endDate">
+                    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #endPicker></mat-datepicker>
+                  </mat-form-field>
+                  <button mat-raised-button (click)="applyFilters()">Aplicar</button>
+                </div>
+              </div>
+              <div class="table-container">
+                <table mat-table [dataSource]="groupedVitals" class="vitals-table">
+                <!-- Fecha Column -->
+                <ng-container matColumnDef="fecha">
                   <th mat-header-cell *matHeaderCellDef> Fecha </th>
-                  <td mat-cell *matCellDef="let element"> {{ element.date | date:'dd/MM/yyyy' }} </td>
+                  <td mat-cell *matCellDef="let element"> {{ element.fecha | date:'dd/MM/yyyy HH:mm' }} </td>
                 </ng-container>
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef> Descripción </th>
-                  <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
+                <!-- Presión Arterial Column -->
+                <ng-container matColumnDef="presion">
+                  <th mat-header-cell *matHeaderCellDef> Presión Arterial </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.presion || '-' }} </td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="medicalHistoryColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: medicalHistoryColumns;"></tr>
-              </table>
+                <!-- Temperatura Column -->
+                <ng-container matColumnDef="temperatura">
+                  <th mat-header-cell *matHeaderCellDef> Temperatura </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.temperatura || '-' }} </td>
+                </ng-container>
+                <!-- Frecuencia Cardíaca Column -->
+                <ng-container matColumnDef="frecuencia">
+                  <th mat-header-cell *matHeaderCellDef> Frecuencia Cardíaca </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.frecuencia || '-' }} </td>
+                </ng-container>
+                <!-- Glucosa Column -->
+                <ng-container matColumnDef="glucosa">
+                  <th mat-header-cell *matHeaderCellDef> Glucosa </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.glucosa || '-' }} </td>
+                </ng-container>
+                <!-- Estado Column -->
+                <ng-container matColumnDef="estado">
+                  <th mat-header-cell *matHeaderCellDef> Estado </th>
+                  <td mat-cell *matCellDef="let element">
+                    <span [class]="element.estado === '✅' ? 'normal' : 'abnormal'">
+                      {{ element.estado }}
+                    </span>
+                  </td>
+                </ng-container>
+                <!-- Notas Column -->
+                <ng-container matColumnDef="notas">
+                  <th mat-header-cell *matHeaderCellDef> Notas </th>
+                  <td mat-cell *matCellDef="let element"> {{ element.notas }} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -389,10 +395,15 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       display: flex;
       gap: 10px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
+      align-items: center;
     }
     .quick-filters button {
       border: 1px solid #ddd;
       border-radius: 4px;
+      white-space: nowrap;
+      min-width: fit-content;
+      flex-shrink: 0;
     }
     .quick-filters button.active {
       background-color: var(--medical-primary);
@@ -404,6 +415,19 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       gap: 20px;
       flex-wrap: wrap;
       align-items: center;
+    }
+
+    @media (max-width: 480px) {
+      .quick-filters {
+        gap: 6px;
+        justify-content: flex-start;
+      }
+      .quick-filters button {
+        font-size: 11px;
+        padding: 6px 8px;
+        min-width: auto;
+        flex-shrink: 1;
+      }
     }
     .charts-container {
       display: grid;
@@ -425,9 +449,23 @@ import { ChatComponent } from '../../shared/chat/chat.component';
     .vitals-table, .medical-history-table {
       width: 100%;
       border-radius: 8px;
-      overflow: hidden;
+      overflow-x: auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       margin-top: 20px;
+      min-width: 600px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     .vitals-table td.mat-cell, .medical-history-table td.mat-cell {
@@ -609,11 +647,7 @@ export class PatientProfileComponent implements OnInit {
   groupedVitals: any[] = [];
 
   medicalHistoryColumns: string[] = ['date', 'description'];
-  medicalHistory: any[] = [
-    { date: '2023-01-15', description: 'Diagnóstico de hipertensión' },
-    { date: '2023-03-20', description: 'Cirugía de apendicitis' },
-    { date: '2023-06-10', description: 'Consulta por dolor de cabeza' }
-  ];
+  medicalHistory: any[] = [];
 
 
 
@@ -649,6 +683,11 @@ export class PatientProfileComponent implements OnInit {
       this.patientService.getMyPatient().subscribe({
         next: (patient) => {
           this.patient = patient;
+          // Load medical history from patient data
+          this.medicalHistory = patient.history ? patient.history.map((h: any) => ({
+            date: h.date,
+            description: h.note
+          })) : [];
           // Agregar datos dummy para enfermeras asignadas si no existen
           if (!this.patient.assignedNurses || this.patient.assignedNurses.length === 0) {
             this.patient.assignedNurses = [
