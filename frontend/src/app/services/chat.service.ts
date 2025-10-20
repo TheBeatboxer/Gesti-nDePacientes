@@ -18,7 +18,7 @@ export class ChatService {
   connect(): void {
     const token = this.authService.getToken();
     if (token) {
-      this.socket = io('http://localhost:5001', {
+      this.socket = io(environment.socketUrl, {
         auth: {
           token: token
         },
@@ -26,12 +26,15 @@ export class ChatService {
       });
 
       this.socket.on('connect', () => {
+        console.log('Connected to socket server');
       });
 
       this.socket.on('disconnect', () => {
+        console.log('Disconnected from socket server');
       });
 
       this.socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
       });
     }
   }
