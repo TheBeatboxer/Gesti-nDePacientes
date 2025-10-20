@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: '/api',
-  socketUrl: '/'
+  apiUrl: 'https://sistemaenfermeriaudh.online/api',
+  socketUrl: 'https://sistemaenfermeriaudh.online:5001'
 };

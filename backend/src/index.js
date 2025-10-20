@@ -23,7 +23,10 @@ const server = http.createServer(app);
 // Socket.IO
 const { Server } = require('socket.io');
 const io = new Server(server, {
-  cors: { origin: '*' }
+  cors: {
+    origin: ['http://localhost:4200', 'https://sistemaenfermeriaudh.online'],
+    methods: ['GET', 'POST']
+  }
 });
 app.set('io', io);
 
