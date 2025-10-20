@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+
+    <script>
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+
+        // Replace with your actual domain and JWT token
+        const socket = io('https://sistemaenfermeriaudh.online', {
+            auth: {
+                token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjY0ZWQ0YjI0ZGQyOTNlMDRhZGY3YiIsInJvbGVzIjpbIk5VUlNFIl0sImlhdCI6MTc2MDk4MDE3MCwiZXhwIjoxNzYxNTg0OTcwfQ.4mHLVWMO18B5jvACCC1dD0VrKAKgs878b4Rv6WBn7xM'
+            },
+            transports: ['websocket', 'polling']
+        });
+
+        socket.on('connect', () => {
+            status.innerHTML = '✅ Connected to WebSocket';
+            status.style.color = 'green';
+        });
+
+        socket.on('disconnect', () => {
+            status.innerHTML = '❌ Disconnected from WebSocket';
+            status.style.color = 'red';
+        });
+
+        socket.on('connect_error', (error) => {
+            status.innerHTML = '❌ Connection Error: ' + error.message;
+            status.style.color = 'red';
+        });
+
+        socket.on('newMessage', (data) => {
+            const msg = document.createElement('div');
+            msg.innerHTML = `📨 New message: ${JSON.stringify(data)}`;
+            messages.appendChild(msg);
+        });
+
+        // Test join chat
+        setTimeout(() => {
+            socket.emit('joinChat', '68f64f07b24dd293e04adfa2');
+            const msg = document.createElement('div');
+            msg.innerHTML = '📤 Sent joinChat event to patient';
+            messages.appendChild(msg);
+        }, 2000);
+
+        // Test send message
+        setTimeout(() => {
+            socket.emit('sendMessage', { recipientId: '68f64f07b24dd293e04adfa2', message: 'Test message from WebSocket' });
+            const msg = document.createElement('div');
+            msg.innerHTML = '📤 Sent test message to patient';
+            messages.appendChild(msg);
+        }, 4000);
+    </script>
+</body>
+</html>

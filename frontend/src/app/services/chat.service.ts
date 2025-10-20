@@ -22,7 +22,9 @@ export class ChatService {
         auth: {
           token: token
         },
-        transports: ['websocket', 'polling']
+        transports: ['polling', 'websocket'],
+        upgrade: true,
+        rememberUpgrade: true
       });
 
       this.socket.on('connect', () => {

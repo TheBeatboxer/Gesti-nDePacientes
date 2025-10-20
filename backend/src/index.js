@@ -26,7 +26,8 @@ const io = new Server(server, {
   cors: {
     origin: ['http://localhost:4200', 'https://sistemaenfermeriaudh.online'],
     methods: ['GET', 'POST']
-  }
+  },
+  transports: ['websocket', 'polling']
 });
 app.set('io', io);
 
