@@ -27,7 +27,7 @@ import 'chartjs-adapter-date-fns';
   imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule, ChatComponent, BaseChartDirective],
   template: `
     <div class="page-wrapper">
-      <button mat-raised-button color="primary" routerLink="/patients" class="back-button">
+      <button mat-button color="primary" routerLink="/patients" class="back-button">
         <mat-icon>arrow_back</mat-icon>
         Volver a Pacientes
       </button>
@@ -104,8 +104,11 @@ import 'chartjs-adapter-date-fns';
               </mat-form-field>
             </form>
           </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="saveVital()" [disabled]="!vitalForm.form.valid">Guardar Signos Vitales</button>
+          <mat-card-actions style="justify-content: center;">
+            <button mat-button color="primary" (click)="saveVital()" [disabled]="!vitalForm.form.valid">
+              <mat-icon>save</mat-icon>
+              Guardar Signos Vitales
+            </button>
           </mat-card-actions>
         </mat-card>
       </div>
@@ -160,8 +163,11 @@ import 'chartjs-adapter-date-fns';
               </mat-select>
             </mat-form-field>
           </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="addNote()" [disabled]="!newNote || !selectedNurse">Agregar Nota</button>
+          <mat-card-actions style="justify-content: center;">
+            <button mat-button color="primary" (click)="addNote()" [disabled]="!newNote || !selectedNurse">
+              <mat-icon>note_add</mat-icon>
+              Agregar Nota
+            </button>
           </mat-card-actions>
         </mat-card>
       </div>
@@ -384,6 +390,11 @@ export class PatientDetailComponent implements OnInit {
     this.loadNurses();
     // Connect to chat when component initializes
     this.connectToChat();
+    // Auto-select current nurse if logged in as nurse
+    const user = this.authService.getUser();
+    if (user && user.roles && user.roles.includes('NURSE')) {
+      this.selectedNurse = user._id;
+    }
   }
 
   connectToChat() {
@@ -452,7 +463,11 @@ export class PatientDetailComponent implements OnInit {
   addNote() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && this.newNote && this.selectedNurse) {
-      this.patientService.addHistoryNote(id, this.newNote, this.selectedNurse).subscribe(() => {
+      const noteData = {
+        note: this.newNote,
+        nurseId: this.selectedNurse
+      };
+      this.patientService.addHistoryNote(id, noteData.note, noteData.nurseId).subscribe(() => {
         this.snackBar.open('Nota agregada exitosamente', 'Cerrar', { duration: 3000 });
         this.newNote = '';
         this.selectedNurse = '';

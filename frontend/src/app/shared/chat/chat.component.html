@@ -9,6 +9,9 @@
   </div>
   <div class="input-area">
     <input [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Escribe un mensaje...">
-    <button (click)="sendMessage()">Enviar</button>
+    <button mat-button color="primary" (click)="sendMessage()">
+      <mat-icon>send</mat-icon>
+      Enviar
+    </button>
   </div>
 </div>
