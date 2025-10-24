@@ -73,7 +73,8 @@ exports.getPatients = async (req, res) => {
 exports.getPatientById = async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id)
-      .populate('assignedNurses', 'name email');
+      .populate('assignedNurses', 'name email')
+      .populate('history.nurse', 'name');
     if (!patient) return res.status(404).json({ error: 'Not found' });
     res.json(patient);
   } catch (err) {
