@@ -147,6 +147,8 @@ exports.unassignNurse = async (req, res) => {
   }
 };
 
+const Appointment = require('../models/Appointment');
+
 exports.getTodaysAppointments = async (req, res) => {
   try {
     const today = new Date();
@@ -154,13 +156,12 @@ exports.getTodaysAppointments = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const patients = await Patient.find({ assignedNurses: req.user._id });
-    let count = 0;
-    patients.forEach(p => {
-      p.scheduledVisits.forEach(v => {
-        if (v.date >= today && v.date < tomorrow) count++;
-      });
+    // Get appointments for today assigned to this nurse
+    const count = await Appointment.countDocuments({
+      nurseId: req.user._id,
+      date: { $gte: today, $lt: tomorrow }
     });
+
     res.json({ count });
   } catch (err) {
     res.status(500).json({ error: err.message });

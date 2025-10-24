@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # TODO: Agregar Gráficos de Evolución de Signos Vitales en Historial de Evolución
 
 ## Información Recopilada
@@ -34,3 +35,37 @@
 - [ ] Implementar lógica para procesar vitals en chartData.
 - [ ] Agregar canvas en el template.
 - [ ] Probar y verificar funcionamiento.
+=======
+# TODO: Implementación de Sistema de Citas y Recordatorios
+
+## Backend
+- [ ] Crear modelo Appointment.js (fecha, hora, paciente, enfermero, tipo, notas, estado, recordatorios)
+- [ ] Actualizar modelo Patient.js para integrar appointments (si es necesario)
+- [ ] Crear controlador appointmentController.js con CRUD completo
+- [ ] Crear rutas /api/appointments con middleware de auth
+- [ ] Integrar con rutas existentes en index.js
+- [ ] Crear sistema de recordatorios (usar Alert existente o nuevo modelo Reminder)
+- [ ] Actualizar patientController para incluir appointments en consultas
+
+## Frontend
+- [ ] Crear servicio appointment.service.ts
+- [ ] Crear componente calendario (calendar.component) con Angular Material
+- [ ] Crear página de gestión de citas (appointments.component)
+- [ ] Crear diálogo para crear/editar citas (appointment-dialog.component)
+- [ ] Actualizar nurse-dashboard para mostrar calendario de citas
+- [ ] Actualizar patient-profile para que pacientes vean sus citas
+- [ ] Integrar notificaciones de recordatorios en la app
+- [ ] Actualizar rutas en app.routes.ts
+
+## UI/UX
+- [ ] Aplicar tema médico consistente (azul/verde)
+- [ ] Diseño responsive para móvil y desktop
+- [ ] Iconos y colores apropiados para citas médicas
+- [ ] Integrar con sidebar existente
+
+## Testing
+- [ ] Probar creación, edición, eliminación de citas
+- [ ] Verificar permisos por roles (ADMIN, NURSE, PATIENT)
+- [ ] Probar recordatorios y notificaciones
+- [ ] Verificar integración con dashboards existentes
+>>>>>>> Stashed changes

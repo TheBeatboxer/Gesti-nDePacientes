@@ -41,7 +41,7 @@ import { ChatComponent } from '../../shared/chat/chat.component';
     ChatComponent
   ],
   template: `
-    <div class="page-wrapper">
+    <div class="page-wrapper" *ngIf="!isNurse">
       <h1>Mi Perfil de Paciente</h1>
 
       <div class="section profile-section">
@@ -292,6 +292,27 @@ import { ChatComponent } from '../../shared/chat/chat.component';
           </mat-card>
         </div>
 
+        <div class="section appointments-section">
+          <h2>GESTIÓN DE CITAS</h2>
+          <mat-card class="appointments-card">
+            <mat-card-content>
+              <div class="appointments-content">
+                <div class="appointments-info">
+                  <mat-icon class="appointments-icon">event</mat-icon>
+                  <div class="appointments-text">
+                    <h3>Gestiona tus citas médicas</h3>
+                    <p>Programa, modifica o cancela tus citas con médicos y enfermeras.</p>
+                  </div>
+                </div>
+                <button mat-raised-button class="appointments-btn" (click)="goToAppointments()">
+                  <mat-icon>calendar_today</mat-icon>
+                  Ver Mis Citas
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
         <div class="section chat-section">
           <h2>CHAT CON ENFERMERAS</h2>
           <mat-card class="chat-card">
@@ -358,7 +379,11 @@ import { ChatComponent } from '../../shared/chat/chat.component';
         grid-row: 4;
       }
       .education-section {
-        grid-column: 1 / span 2;
+        grid-column: 1;
+        grid-row: 5;
+      }
+      .appointments-section {
+        grid-column: 2;
         grid-row: 5;
       }
       .chat-section {
@@ -378,7 +403,7 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       text-align: center;
       margin-bottom: 30px;
     }
-    .profile-card, .vital-card, .history-card, .medical-history-card, .chat-card, .education-card {
+    .profile-card, .vital-card, .history-card, .medical-history-card, .chat-card, .education-card, .appointments-card {
       padding: 20px;
       flex: 1;
       box-sizing: border-box;
@@ -650,24 +675,82 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       margin-right: 8px;
     }
 
+    .appointments-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .appointments-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .appointments-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+      color: var(--medical-primary);
+    }
+
+    .appointments-text h3 {
+      margin: 0 0 5px 0;
+      color: var(--medical-primary);
+      font-size: 1.2rem;
+    }
+
+    .appointments-text p {
+      margin: 0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .appointments-btn {
+      background: linear-gradient(45deg, #ff9800, #ffb74d);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .appointments-btn:hover {
+      background: linear-gradient(45deg, #f57c00, #ff9800);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+    }
+
+    .appointments-btn mat-icon {
+      margin-right: 8px;
+    }
+
     @media (max-width: 768px) {
-      .education-content {
+      .education-content,
+      .appointments-content {
         flex-direction: column;
         text-align: center;
       }
 
-      .education-info {
+      .education-info,
+      .appointments-info {
         flex-direction: column;
         text-align: center;
       }
 
-      .education-btn {
+      .education-btn,
+      .appointments-btn {
         width: 100%;
       }
     }
   `]
 })
 export class PatientProfileComponent implements OnInit {
+  isNurse = false;
+
   patient: any = {
     name: '',
     dni: '',
@@ -828,6 +911,8 @@ export class PatientProfileComponent implements OnInit {
   }
 
   ngOnInit() {
+    const user = this.authService.getUser();
+    this.isNurse = user.roles.includes('NURSE');
     this.loadPatientProfile();
   }
 
@@ -1122,6 +1207,10 @@ export class PatientProfileComponent implements OnInit {
 
   goToEducation() {
     this.router.navigate(['/patient-education']);
+  }
+
+  goToAppointments() {
+    this.router.navigate(['/appointments']);
   }
 
   logout() {

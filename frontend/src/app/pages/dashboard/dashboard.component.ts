@@ -39,6 +39,10 @@ import { ChartConfiguration, ChartType } from 'chart.js';
             <mat-icon mat-list-icon>bar_chart</mat-icon>
             <span>Reportes</span>
           </a>
+          <a mat-list-item routerLink="/appointments">
+            <mat-icon mat-list-icon>event</mat-icon>
+            <span>Citas</span>
+          </a>
           <a mat-list-item (click)="logout()">
             <mat-icon mat-list-icon>logout</mat-icon>
             <span>Logout</span>
