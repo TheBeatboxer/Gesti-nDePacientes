@@ -1,36 +1,36 @@
-# TODO: Implementación del Chat Paciente-Enfermera
+# TODO: Agregar Gráficos de Evolución de Signos Vitales en Historial de Evolución
 
-## Backend
+## Información Recopilada
+- El componente `patient-detail.component.ts` maneja la vista de detalle del paciente.
+- Ya tiene secciones para perfil, signos vitales, historial de evolución (con notas) y chat.
+- Los signos vitales se obtienen del servicio `VitalService` y se muestran en una grid.
+- El proyecto ya tiene `chart.js` y `ng2-charts` instalados en `frontend/package.json`.
+- El backend tiene modelos `Vital` y `VitalRecord`, y rutas para obtener vitals filtrados por paciente.
+- El layout actual usa CSS Grid con history-section ocupando toda la fila inferior.
 
-- [x] **1. Configurar Socket.IO:**
-    - [x] Adjuntar Socket.IO al servidor HTTP de Express en `src/index.js`.
-    - [x] Crear un manejador de conexión básico para `socket.io`.
+## Plan
+- Modificar el layout CSS para colocar la sección de historial de evolución en una columna al lado de la sección de chat.
+- Agregar imports de Chart.js y ng2-charts en el componente.
+- Agregar un canvas para el gráfico en el template del card "Historial de Evolución".
+- Procesar los datos de vitals en el componente para crear datasets para gráficos de líneas (uno por tipo de signo vital).
+- Mostrar el gráfico encima o debajo de la lista de notas de evolución.
 
-- [x] **2. Autenticación y Salas:**
-    - [x] Implementar la autenticación de sockets mediante JWT.
-    - [x] Crear una lógica para que los usuarios se unan a salas de chat privadas (ej: `chat_<pacienteId>_<enfermeraId>`).
+## Pasos Detallados
+1. Actualizar el CSS del componente para reorganizar el grid: history-section en columna 1, fila 2; chat-section en columna 2, fila 2.
+2. Importar `ChartModule` de `ng2-charts` en el componente.
+3. Agregar propiedades en el componente para el gráfico: `chartData`, `chartOptions`, etc.
+4. En `ngOnInit`, después de cargar vitals, procesar los datos para crear el chartData.
+5. Agregar el elemento `<canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>` en el template dentro del card de historial de evolución.
+6. Probar el componente para asegurar que los gráficos se rendericen correctamente.
 
-- [x] **3. Manejo de Mensajes:**
-    - [x] Crear el manejador del lado del servidor para el evento `sendMessage`.
-    - [x] Guardar los mensajes en la base de datos usando el modelo `Message`.
-    - [x] Retransmitir los mensajes a la sala de chat adecuada.
+## Dependencias
+- No se requieren nuevas dependencias; `chart.js` y `ng2-charts` ya están instaladas.
+- Archivos a editar: `frontend/src/app/pages/patient-detail/patient-detail.component.ts`
 
-- [x] **4. API para Historial:**
-    - [x] Implementar la ruta `GET /api/chat/history/:user1Id/:user2Id` para obtener el historial de chat.
-
-## Frontend
-
-- [x] **5. Servicio de Chat (`chat.service.ts`):**
-    - [x] Crear el servicio `ChatService`.
-    - [x] Implementar la conexión y autenticación con Socket.IO.
-    - [x] Crear un método `sendMessage` para enviar mensajes.
-    - [x] Crear un `Observable` para recibir mensajes en tiempo real.
-
-- [x] **6. Componente de Chat:**
-    - [x] Generar un nuevo componente de chat.
-    - [x] Diseñar la interfaz de usuario para mostrar mensajes y un campo de entrada.
-    - [x] Integrar el `ChatService` para la comunicación.
-
-- [x] **7. Integración del Componente:**
-    - [x] Añadir un punto de acceso (ej: un botón) al componente de chat en las vistas de paciente y enfermera.
-    - [x] Cargar el historial de chat al abrir el componente.
+## Seguimiento de Progreso
+- [ ] Actualizar CSS para layout de dos columnas en fila inferior.
+- [ ] Importar ChartModule en el componente.
+- [ ] Agregar propiedades para el gráfico en el componente.
+- [ ] Implementar lógica para procesar vitals en chartData.
+- [ ] Agregar canvas en el template.
+- [ ] Probar y verificar funcionamiento.

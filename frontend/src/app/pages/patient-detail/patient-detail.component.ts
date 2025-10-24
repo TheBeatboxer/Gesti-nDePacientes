@@ -17,11 +17,14 @@ import { RouterModule } from '@angular/router';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ChatComponent } from '../../shared/chat/chat.component';
 import { ChatService } from '../../services/chat.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartData, ChartOptions, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule, ChatComponent],
+  imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule, ChatComponent, BaseChartDirective],
   template: `
     <div class="page-wrapper">
       <div class="patient-detail-container">
@@ -113,6 +116,24 @@ import { ChatService } from '../../services/chat.service';
             <mat-card-title>Historial de Evolución</mat-card-title>
           </mat-card-header>
           <mat-card-content>
+            <div class="charts-grid">
+              <div *ngIf="chartDataPressure && chartDataPressure.datasets.length > 0" class="chart-container">
+                <h4>Presión Arterial</h4>
+                <canvas baseChart [data]="chartDataPressure" [options]="chartOptions" type="line"></canvas>
+              </div>
+              <div *ngIf="chartDataTemp && chartDataTemp.datasets.length > 0" class="chart-container">
+                <h4>Temperatura</h4>
+                <canvas baseChart [data]="chartDataTemp" [options]="chartOptions" type="line"></canvas>
+              </div>
+              <div *ngIf="chartDataHeartRate && chartDataHeartRate.datasets.length > 0" class="chart-container">
+                <h4>Frecuencia Cardíaca</h4>
+                <canvas baseChart [data]="chartDataHeartRate" [options]="chartOptions" type="line"></canvas>
+              </div>
+              <div *ngIf="chartDataGlucose && chartDataGlucose.datasets.length > 0" class="chart-container">
+                <h4>Glucosa</h4>
+                <canvas baseChart [data]="chartDataGlucose" [options]="chartOptions" type="line"></canvas>
+              </div>
+            </div>
             <mat-list>
               <mat-list-item *ngFor="let entry of patient?.history">
                 <mat-icon mat-list-icon>note</mat-icon>
@@ -184,7 +205,11 @@ import { ChatService } from '../../services/chat.service';
         grid-row: 1;
       }
       .history-section {
-        grid-column: 1 / span 2;
+        grid-column: 1;
+        grid-row: 2;
+      }
+      .chat-section {
+        grid-column: 2;
         grid-row: 2;
       }
     }
@@ -262,6 +287,14 @@ import { ChatService } from '../../services/chat.service';
     .full-width {
       width: 100%;
     }
+    .charts-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .chart-container {
+      height: 300px;
+    }
   `]
 })
 export class PatientDetailComponent implements OnInit {
@@ -277,6 +310,41 @@ export class PatientDetailComponent implements OnInit {
     heartRate: null,
     glucose: null
   };
+  chartDataPressure: ChartData<'line'> = { datasets: [] };
+  chartDataTemp: ChartData<'line'> = { datasets: [] };
+  chartDataHeartRate: ChartData<'line'> = { datasets: [] };
+  chartDataGlucose: ChartData<'line'> = { datasets: [] };
+  chartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          unit: 'day',
+          displayFormats: {
+            day: 'dd/MM',
+          },
+        },
+        title: {
+          display: true,
+          text: 'Fecha',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Valor',
+        },
+        beginAtZero: true,
+      },
+    },
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -286,7 +354,12 @@ export class PatientDetailComponent implements OnInit {
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private chatService: ChatService
-  ) {}
+  ) {
+    // Register the time scale
+    import('chart.js').then(({ Chart, registerables }) => {
+      Chart.register(...registerables, TimeScale);
+    });
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -296,6 +369,7 @@ export class PatientDetailComponent implements OnInit {
       });
       this.vitalService.getVitals(id).subscribe(data => {
         this.vitals = data;
+        this.prepareChartData();
       });
     }
     this.loadNurses();
@@ -401,7 +475,10 @@ export class PatientDetailComponent implements OnInit {
           savedCount++;
           if (savedCount === vitals.length && !hasError) {
             this.snackBar.open('Signos vitales guardados exitosamente', 'Cerrar', { duration: 3000 });
-            this.vitalService.getVitals(id).subscribe(data => this.vitals = data);
+            this.vitalService.getVitals(id).subscribe(data => {
+              this.vitals = data;
+              this.prepareChartData();
+            });
             this.newVital = { systolic: null, diastolic: null, temperature: null, heartRate: null, glucose: null };
           }
         },
@@ -412,6 +489,93 @@ export class PatientDetailComponent implements OnInit {
           }
         }
       });
+    });
+  }
+
+  prepareChartData() {
+    if (!this.vitals || this.vitals.length === 0) {
+      this.chartDataPressure = { datasets: [] };
+      this.chartDataTemp = { datasets: [] };
+      this.chartDataHeartRate = { datasets: [] };
+      this.chartDataGlucose = { datasets: [] };
+      return;
+    }
+
+    // Group vitals by type
+    const groupedVitals: { [key: string]: any[] } = {};
+    this.vitals.forEach(vital => {
+      if (!groupedVitals[vital.type]) {
+        groupedVitals[vital.type] = [];
+      }
+      groupedVitals[vital.type].push(vital);
+    });
+
+    const colors = {
+      pressure: '#1976d2',
+      temp: '#ff9800',
+      heartRate: '#4caf50',
+      glucose: '#9c27b0'
+    };
+
+    // Prepare data for each chart
+    Object.keys(groupedVitals).forEach(type => {
+      const vitalsForType = groupedVitals[type].sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime());
+
+      if (type === 'pressure') {
+        const systolicData = vitalsForType.map(vital => ({
+          x: new Date(vital.recordedAt),
+          y: vital.value.systolic
+        }));
+        const diastolicData = vitalsForType.map(vital => ({
+          x: new Date(vital.recordedAt),
+          y: vital.value.diastolic
+        }));
+
+        const systolicDataset: any = {
+          label: 'Sistólica',
+          data: systolicData,
+          borderColor: colors.pressure,
+          backgroundColor: colors.pressure + '20',
+          fill: false,
+          tension: 0.1
+        };
+        const diastolicDataset: any = {
+          label: 'Diastólica',
+          data: diastolicData,
+          borderColor: '#0d47a1', // Darker blue for diastolic
+          backgroundColor: '#0d47a1' + '20',
+          fill: false,
+          tension: 0.1
+        };
+
+        this.chartDataPressure = { datasets: [systolicDataset, diastolicDataset] };
+      } else {
+        const data = vitalsForType.map(vital => ({
+          x: new Date(vital.recordedAt),
+          y: vital.value
+        }));
+
+        const dataset: any = {
+          label: this.getVitalLabel(type),
+          data: data,
+          borderColor: colors[type as keyof typeof colors],
+          backgroundColor: colors[type as keyof typeof colors] + '20',
+          fill: false,
+          tension: 0.1
+        };
+
+        switch (type) {
+          case 'temp':
+            this.chartDataTemp = { datasets: [dataset] };
+            break;
+          case 'heartRate':
+            this.chartDataHeartRate = { datasets: [dataset] };
+            break;
+          case 'glucose':
+            this.chartDataGlucose = { datasets: [dataset] };
+            break;
+        }
+      }
     });
   }
 }
