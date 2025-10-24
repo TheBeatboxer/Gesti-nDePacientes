@@ -76,7 +76,10 @@ import { CommonModule } from '@angular/common';
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, var(--medical-primary) 0%, var(--medical-secondary) 100%);
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/medical-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       padding: 20px;
       overflow: hidden;
     }

@@ -100,15 +100,21 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       <mat-card class="vital-card">
         <mat-card-content>
           <form [formGroup]="vitalForm" class="vital-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Presión arterial (sistólica / diastólica)</mat-label>
+            <div class="pressure-field">
+              <mat-label class="pressure-label">Presión arterial (sistólica / diastólica)</mat-label>
               <div class="pressure-inputs">
-                <input matInput formControlName="systolic" placeholder="120" type="number">
-                <span>/</span>
-                <input matInput formControlName="diastolic" placeholder="80" type="number">
-                <span>mmHg</span>
+                <mat-form-field appearance="outline" class="pressure-systolic">
+                  <mat-label>Sistólica</mat-label>
+                  <input matInput formControlName="systolic" placeholder="120" type="number">
+                </mat-form-field>
+                <span class="pressure-separator">/</span>
+                <mat-form-field appearance="outline" class="pressure-diastolic">
+                  <mat-label>Diastólica</mat-label>
+                  <input matInput formControlName="diastolic" placeholder="80" type="number">
+                </mat-form-field>
+                <span class="pressure-unit">mmHg</span>
               </div>
-            </mat-form-field>
+            </div>
             <mat-form-field appearance="outline">
               <mat-label>Temperatura</mat-label>
               <input matInput formControlName="temperature" placeholder="36.5" type="number" step="0.1">
@@ -265,6 +271,27 @@ import { ChatComponent } from '../../shared/chat/chat.component';
           </mat-card>
         </div>
 
+        <div class="section education-section">
+          <h2>BIBLIOTECA DE AUTOCUIDADO</h2>
+          <mat-card class="education-card">
+            <mat-card-content>
+              <div class="education-content">
+                <div class="education-info">
+                  <mat-icon class="education-icon">school</mat-icon>
+                  <div class="education-text">
+                    <h3>Aprende sobre tu salud</h3>
+                    <p>Accede a videos educativos sobre autocuidado, medicamentos, ejercicios y más.</p>
+                  </div>
+                </div>
+                <button mat-raised-button color="primary" class="education-btn" (click)="goToEducation()">
+                  <mat-icon>play_circle_outline</mat-icon>
+                  Ver Videos Educativos
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
         <div class="section chat-section">
           <h2>CHAT CON ENFERMERAS</h2>
           <mat-card class="chat-card">
@@ -305,7 +332,7 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       .page-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
         gap: 20px;
         align-items: stretch;
         max-width: 1400px;
@@ -330,9 +357,13 @@ import { ChatComponent } from '../../shared/chat/chat.component';
         grid-column: 1 / span 2;
         grid-row: 4;
       }
-      .chat-section {
+      .education-section {
         grid-column: 1 / span 2;
         grid-row: 5;
+      }
+      .chat-section {
+        grid-column: 1 / span 2;
+        grid-row: 6;
       }
       .vitals-section {
         grid-column: 2;
@@ -347,7 +378,7 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       text-align: center;
       margin-bottom: 30px;
     }
-    .profile-card, .vital-card, .history-card, .medical-history-card, .chat-card {
+    .profile-card, .vital-card, .history-card, .medical-history-card, .chat-card, .education-card {
       padding: 20px;
       flex: 1;
       box-sizing: border-box;
@@ -380,13 +411,67 @@ import { ChatComponent } from '../../shared/chat/chat.component';
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
+
+    .pressure-field {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pressure-label {
+      font-size: 0.875rem;
+      color: rgba(0, 0, 0, 0.6);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
     .pressure-inputs {
       display: flex;
-      align-items: center;
-      gap: 5px;
+      align-items: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .pressure-inputs input {
-      width: 60px;
+
+    .pressure-systolic,
+    .pressure-diastolic {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .pressure-separator {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--medical-primary);
+      margin: 0 8px;
+      align-self: center;
+    }
+
+    .pressure-unit {
+      font-size: 0.875rem;
+      color: rgba(0, 0, 0, 0.6);
+      font-weight: 500;
+      align-self: center;
+      margin-left: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .pressure-inputs {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .pressure-systolic,
+      .pressure-diastolic {
+        min-width: auto;
+      }
+
+      .pressure-separator,
+      .pressure-unit {
+        align-self: center;
+        margin: 0;
+      }
     }
     .filters {
       margin-bottom: 20px;
@@ -510,6 +595,75 @@ import { ChatComponent } from '../../shared/chat/chat.component';
     }
     .full-width {
       width: 100%;
+    }
+
+    .education-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .education-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .education-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+      color: var(--medical-primary);
+    }
+
+    .education-text h3 {
+      margin: 0 0 5px 0;
+      color: var(--medical-primary);
+      font-size: 1.2rem;
+    }
+
+    .education-text p {
+      margin: 0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .education-btn {
+      background: linear-gradient(45deg, #4caf50, #66bb6a);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .education-btn:hover {
+      background: linear-gradient(45deg, #388e3c, #4caf50);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .education-btn mat-icon {
+      margin-right: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .education-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .education-info {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .education-btn {
+        width: 100%;
+      }
     }
   `]
 })
@@ -964,6 +1118,10 @@ export class PatientProfileComponent implements OnInit {
   }
 
   onNurseSelected() {
+  }
+
+  goToEducation() {
+    this.router.navigate(['/patient-education']);
   }
 
   logout() {
