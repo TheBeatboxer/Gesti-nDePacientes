@@ -150,22 +150,27 @@ import html2canvas from 'html2canvas';
               <mat-card-title>Historial de Signos Vitales</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <div class="vitals-grid" *ngIf="vitals.length > 0; else noVitals">
-                <mat-card *ngFor="let vital of vitals" class="vital-card" [ngClass]="getVitalClass(vital.type)">
-                  <mat-card-content>
-                    <div class="vital-header">
-                      <mat-icon class="vital-icon">{{ getVitalIcon(vital.type) }}</mat-icon>
-                      <span class="vital-type">{{ getVitalLabel(vital.type) }}</span>
-                    </div>
-                    <div class="vital-value">
-                      {{ getVitalDisplayValue(vital) }}
-                    </div>
-                    <div class="vital-timestamp">
-                      {{ vital.timestamp | date:'dd/MM/yyyy HH:mm' }}
-                    </div>
-                  </mat-card-content>
-                </mat-card>
+            <div class="vitals-grid" *ngIf="hasGroupedVitals(); else noVitals">
+              <div *ngFor="let date of getSortedDates()" class="date-group">
+                <h4 class="date-title">{{ date }}</h4>
+                <div class="vitals-for-date">
+                  <mat-card *ngFor="let vital of getLatestVitalsForDate(date)" class="vital-card" [ngClass]="getVitalClass(vital.type)">
+                    <mat-card-content>
+                      <div class="vital-header">
+                        <mat-icon class="vital-icon">{{ getVitalIcon(vital.type) }}</mat-icon>
+                        <span class="vital-type">{{ getVitalLabel(vital.type) }}</span>
+                      </div>
+                      <div class="vital-value">
+                        {{ getVitalDisplayValue(vital) }}
+                      </div>
+                      <div class="vital-timestamp">
+                        {{ vital.timestamp | date:'HH:mm' }}
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
               </div>
+            </div>
               <ng-template #noVitals>
                 <p class="no-vitals">No hay registros de signos vitales.</p>
               </ng-template>
@@ -254,6 +259,23 @@ import html2canvas from 'html2canvas';
       }
     }
     .vitals-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .date-group {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      background-color: #fafafa;
+    }
+    .date-title {
+      margin: 0 0 16px 0;
+      color: #1976d2;
+      font-weight: 500;
+      font-size: 18px;
+    }
+    .vitals-for-date {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 16px;
@@ -333,13 +355,20 @@ import html2canvas from 'html2canvas';
       gap: 20px;
     }
     .chart-container {
-      height: 300px;
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      height: 100% !important;
     }
   `]
 })
 export class PatientDetailComponent implements OnInit {
   patient: any;
   vitals: any[] = [];
+  groupedVitals: { [date: string]: any[] } = {};
   nurses: any[] = [];
   newNote = '';
   selectedNurse = '';
@@ -357,6 +386,15 @@ export class PatientDetailComponent implements OnInit {
   @ViewChild('chartsContent', { static: false }) chartsContent!: ElementRef;
   chartOptions: ChartOptions<'line'> = {
     responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: {
+        top: 10,
+        bottom: 10,
+        left: 10,
+        right: 10
+      }
+    },
     plugins: {
       legend: {
         display: true,
@@ -410,6 +448,7 @@ export class PatientDetailComponent implements OnInit {
       });
       this.vitalService.getVitals(id).subscribe(data => {
         this.vitals = data;
+        this.groupVitalsByDate();
         this.prepareChartData();
       });
     }
@@ -486,6 +525,20 @@ export class PatientDetailComponent implements OnInit {
     }
   }
 
+  getSortedDates(): string[] {
+    return Object.keys(this.groupedVitals).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  }
+
+  getLatestVitalsForDate(date: string): any[] {
+    return this.groupedVitals[date]
+      .sort((a, b) => new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime())
+      .slice(0, 4);
+  }
+
+  hasGroupedVitals(): boolean {
+    return this.groupedVitals && Object.keys(this.groupedVitals).length > 0;
+  }
+
   addNote() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && this.newNote && this.selectedNurse) {
@@ -528,6 +581,7 @@ export class PatientDetailComponent implements OnInit {
             this.snackBar.open('Signos vitales guardados exitosamente', 'Cerrar', { duration: 3000 });
             this.vitalService.getVitals(id).subscribe(data => {
               this.vitals = data;
+              this.groupVitalsByDate();
               this.prepareChartData();
             });
             this.newVital = { systolic: null, diastolic: null, temperature: null, heartRate: null, glucose: null };
@@ -541,6 +595,18 @@ export class PatientDetailComponent implements OnInit {
         }
       });
     });
+  }
+
+  groupVitalsByDate() {
+    const newGroupedVitals: { [date: string]: any[] } = {};
+    this.vitals.forEach(vital => {
+      const date = new Date(vital.recordedAt).toLocaleDateString();
+      if (!newGroupedVitals[date]) {
+        newGroupedVitals[date] = [];
+      }
+      newGroupedVitals[date].push(vital);
+    });
+    this.groupedVitals = newGroupedVitals;
   }
 
   prepareChartData() {
