@@ -13,6 +13,7 @@ const vitalsRoutes = require('./routes/vitals');
 const alertsRoutes = require('./routes/alerts');
 const chatRoutes = require('./routes/chat');
 const educationRoutes = require('./routes/education');
+const appointmentRoutes = require('./routes/appointments');
 const authMiddleware = require('./middleware/auth');
 
 const Message = require('./models/Message');
@@ -50,6 +51,7 @@ app.use('/api/vitals', authMiddleware, vitalsRoutes);
 app.use('/api/alerts', authMiddleware, alertsRoutes);
 app.use('/api/chat', authMiddleware, chatRoutes);
 app.use('/api/education', authMiddleware, educationRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true, msg: 'Nursing follow-up API' }));
 

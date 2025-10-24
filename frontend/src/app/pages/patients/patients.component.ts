@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { PatientDialogComponent, PatientData } from './patient-dialog.component';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { NurseSidebarComponent } from '../../shared/nurse-sidebar.component';
 
 @Component({
   selector: 'app-patients',
@@ -32,10 +33,12 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
     FormsModule,
     RouterModule,
     PatientDialogComponent,
-    MatSnackBarModule
+    MatSnackBarModule,
+    NurseSidebarComponent
   ],
   template: `
-    <div class="patients-container">
+    <app-nurse-sidebar>
+      <div class="patients-container">
       <div class="header">
         <h1>Gestión de Pacientes</h1>
         <button mat-raised-button color="primary" (click)="openNewPatient()">
@@ -92,7 +95,8 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
         (page)="onPageChange($event)"
         showFirstLastButtons>
       </mat-paginator>
-    </div>
+      </div>
+    </app-nurse-sidebar>
   `,
   styles: [`
     .patients-container {

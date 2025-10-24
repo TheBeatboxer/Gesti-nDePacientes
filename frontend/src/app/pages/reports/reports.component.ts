@@ -8,13 +8,15 @@ import { ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { PatientService } from '../../services/patient.service';
 import { NurseService } from '../../services/nurse.service';
+import { NurseSidebarComponent } from '../../shared/nurse-sidebar.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, BaseChartDirective],
+  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, BaseChartDirective, NurseSidebarComponent],
   template: `
-    <h1>Reportes Médicos</h1>
+    <app-nurse-sidebar>
+      <h1>Reportes Médicos</h1>
     <div class="reports-grid">
       <mat-card class="chart-card">
         <mat-card-header>
@@ -51,6 +53,7 @@ import { NurseService } from '../../services/nurse.service';
         <p>Promedio de Edad de Pacientes: {{ averageAge }} años</p>
       </mat-card-content>
     </mat-card>
+    </app-nurse-sidebar>
   `,
   styles: [`
     .reports-grid {
