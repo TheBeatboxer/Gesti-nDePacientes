@@ -72,16 +72,18 @@ import html2canvas from 'html2canvas';
 
           <div class="section">
             <mat-card>
-              <mat-card-header>
+              <mat-card-header style="margin-bottom: 0;">
                 <mat-card-title>Historial de Notas</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <mat-list>
-                  <mat-list-item *ngFor="let entry of patient?.history">
-                    <mat-icon mat-list-icon>note</mat-icon>
-                    <p mat-line style="white-space: normal;">{{ entry.note }}</p>
-                    <p mat-line style="font-size: 0.8em; color: #777;">
-                      {{ entry.date | date:'fullDate' }} a las {{ entry.date | date:'shortTime' }} - por {{ entry.nurse?.name || 'Enfermero no asignado' }}
+                  <mat-list-item *ngFor="let entry of patient?.history" class="history-list-item">
+                    <p mat-line>
+                      <span style="font-weight: bold; font-size: 0.9em; color: #555;">
+                        {{ entry.date | date:'dd/MM/yyyy, HH:mm:ss' }} - {{ entry.nurse?.name || 'Enfermero no asignado' }}
+                      </span>
+                      <br>
+                      <span style="white-space: normal;">{{ entry.note }}</span>
                     </p>
                   </mat-list-item>
                 </mat-list>
@@ -342,6 +344,10 @@ import html2canvas from 'html2canvas';
       color: #999;
       font-style: italic;
     }
+    .history-list-item {
+      height: auto !important;
+      padding: 10px 0;
+    }
     button {
       margin-bottom: 20px;
     }
@@ -352,12 +358,17 @@ import html2canvas from 'html2canvas';
     .charts-grid {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 30px;
+      padding-bottom: 20px;
     }
     .chart-container {
-      height: 200px;
+      height: 300px;
       position: relative;
-      overflow: hidden;
+    }
+    .chart-container h4 {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
     }
     .chart-container canvas {
       width: 100% !important;
@@ -390,7 +401,7 @@ export class PatientDetailComponent implements OnInit {
     layout: {
       padding: {
         top: 10,
-        bottom: 10,
+        bottom: 40,
         left: 10,
         right: 10
       }
@@ -413,6 +424,12 @@ export class PatientDetailComponent implements OnInit {
         title: {
           display: true,
           text: 'Fecha',
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          autoSkip: true,
+          maxTicksLimit: 10,
         },
       },
       y: {
