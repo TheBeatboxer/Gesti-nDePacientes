@@ -7,13 +7,20 @@ import { Observable } from 'rxjs';
 export class VitalService {
   constructor(private http: HttpClient) {}
 
+  private getPatientIdFromUrl(): string {
+    // This method should be called from the component where patientId is available
+    // For now, return empty string - the component should pass patientId
+    return '';
+  }
+
   getVitals(patientId?: string): Observable<any[]> {
     const url = patientId ? `${environment.apiUrl}/vitals?patientId=${patientId}` : `${environment.apiUrl}/vitals`;
     return this.http.get<any[]>(url);
   }
 
   addVital(vital: any): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/vitals`, vital);
+    const patientId = vital.patientId || this.getPatientIdFromUrl();
+    return this.http.post<any>(`${environment.apiUrl}/vitals/${patientId}`, vital);
   }
 
   addVitalSelf(vital: any): Observable<any> {

@@ -27,11 +27,11 @@ import 'chartjs-adapter-date-fns';
   imports: [CommonModule, DatePipe, MatCardModule, MatListModule, MatIconModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, RouterModule, MatSnackBarModule, ChatComponent, BaseChartDirective],
   template: `
     <div class="page-wrapper">
+      <button mat-raised-button color="primary" routerLink="/patients" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Volver a Pacientes
+      </button>
       <div class="patient-detail-container">
-        <button mat-raised-button color="primary" routerLink="/patients">
-          <mat-icon>arrow_back</mat-icon>
-          Volver a Pacientes
-        </button>
 
         <div class="section profile-section">
           <mat-card *ngIf="patient" class="patient-card">
@@ -76,7 +76,7 @@ import 'chartjs-adapter-date-fns';
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="add-vital-card">
+        <mat-card class="add-vital-card" style="margin-top: 20px;">
           <mat-card-header>
             <mat-card-title>Agregar Signos Vitales</mat-card-title>
           </mat-card-header>
@@ -144,7 +144,7 @@ import 'chartjs-adapter-date-fns';
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="add-note-card">
+        <mat-card class="add-note-card" style="margin-top: 20px;">
           <mat-card-header>
             <mat-card-title>Agregar Nota de Evolución</mat-card-title>
           </mat-card-header>
@@ -182,35 +182,44 @@ import 'chartjs-adapter-date-fns';
     .page-wrapper {
       padding: 20px;
       margin: 0 auto;
+      max-width: 1200px;
+    }
+    .back-button {
+      margin-bottom: 20px;
+    }
+    .patient-detail-container {
       display: flex;
       flex-direction: column;
     }
     .section {
       margin-bottom: 20px;
     }
+    mat-card-header {
+      margin-bottom: 16px;
+    }
     @media (min-width: 768px) {
-      .page-wrapper {
+      .patient-detail-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto;
+        grid-template-rows: auto auto auto;
         gap: 20px;
         max-width: 1200px;
       }
       .profile-section {
-        grid-column: 1;
+        grid-column: 2;
         grid-row: 1;
       }
       .vitals-section {
         grid-column: 2;
-        grid-row: 1;
+        grid-row: 2 / span 2;
       }
       .history-section {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 1 / span 2;
       }
       .chat-section {
-        grid-column: 2;
-        grid-row: 2;
+        grid-column: 1;
+        grid-row: 3;
       }
     }
     .vitals-grid {
@@ -469,7 +478,8 @@ export class PatientDetailComponent implements OnInit {
     let savedCount = 0;
     let hasError = false;
 
-    vitals.forEach(vital => {
+    vitals.forEach((vital: any) => {
+      vital.patientId = id; // Add patientId to each vital
       this.vitalService.addVital(vital).subscribe({
         next: () => {
           savedCount++;
